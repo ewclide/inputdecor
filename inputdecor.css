@@ -1,0 +1,247 @@
+.inputdecor-box .inputdecor-list li a {
+    text-decoration: none;
+    color: #616161;
+    font-weight: 300;
+    display: inline-block;
+    width: 100%;
+    padding: 5px 10px;
+    -webkit-transition: 0.25s;
+    -o-transition: 0.25s;
+    transition: 0.25s;
+}
+
+.inputdecor-box .inputdecor-list li {
+    cursor: pointer;
+    font-size: 15px;
+    color: #616161;
+}
+
+.inputdecor-box .inputdecor-list li:hover {
+    background: #f3f3f3;
+}
+
+.inputdecor-box .inputdecor-list li a:hover {
+    background: #9d0034;
+    color: white;
+}
+
+.inputdecor-box {
+    position: relative;
+    display: inline-block;
+}
+
+.inputdecor-box .inputdecor-list {
+    display: none;
+    position: absolute;
+    margin: 0;
+    padding: 10px 0;
+    background: white;
+    border: 1px solid #cccccc;
+    min-width: 250px;
+    list-style: none;
+    box-shadow: 0px 2px 2px rgba(0,0,0,0.11);
+}
+
+.inputdecor-box .inputdecor-label {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    margin: auto;
+    border-right: 4px solid transparent;
+    border-left: 4px solid transparent;
+    border-top: 6px solid black;
+    height: 0;
+}
+
+.inputdecor-box .inputdecor-label.active {
+    transform: rotate(180deg);
+}
+
+.inputdecor-box .inputdecor-button {
+    margin: 5px 0px;
+    padding: 5px 0;
+    padding-right: 20px;
+    border-bottom: 2px solid #757575;
+    cursor: pointer;
+    width: 300px;
+    font-weight: 400;
+    text-transform: uppercase;
+    font-style: italic;
+    color: #7c7c7c;
+}
+
+.inputdecor-box .inputdecor-checkbox.active:before,
+.inputdecor-box .inputdecor-checkbox.active:after {
+    content: "";
+    background: white;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    margin: auto;
+}
+
+.inputdecor-box .inputdecor-checkbox.active:before {
+    width: 7px;
+    height: 2px;
+    top: 3px;
+    right: 5px;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+
+.inputdecor-box .inputdecor-checkbox.active:after {
+    width: 10px;
+    height: 2px;
+    left: 5px;
+    -webkit-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    -o-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+}
+
+.inputdecor-box .inputdecor-checkbox.active {
+    background: #9d0034;
+    border: 1px solid #9d0034;
+}
+
+.inputdecor-box .inputdecor-checkbox {
+    background: #e8e8e8;
+    width: 18px;
+    height: 18px;
+    border-radius: 3px;
+    display: inline-block;
+    vertical-align: middle;
+    border: 1px solid #b3b3b3;
+    position: relative;
+    cursor: pointer;
+}
+
+.inputdecor-box .input[type='checkbox'] {
+    display: none;
+}
+
+.inputdecor-box .inputdecor-calendar table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.inputdecor-box .inputdecor-calendar {
+    font-family: Arial;
+    font-size: 12px;
+    display: inline-block;
+    position: absolute;
+    background: white;
+    padding: 10px;
+    border: 1px solid #dcdcdc;
+    box-shadow: 0px 2px 2px rgba(0,0,0,0.1);
+    display: none;
+    width: 350px;
+}
+
+.inputdecor-box .inputdecor-calendar table td {
+    border: 1px solid white;
+    padding: 8px 15px;
+    text-align: center;
+    color: #3a3a3a;
+    cursor: pointer;
+}
+
+.inputdecor-box .inputdecor-calendar table td.default {
+    box-shadow: inset 0px 0px 0px 1px #d4d4d4;
+    -webkit-transition: 0.25s;
+    -o-transition: 0.25s;
+    transition: 0.25s;
+}
+
+.inputdecor-box .inputdecor-calendar table td.default:hover {
+    background: #f5f5f5;
+}
+
+.inputdecor-box .inputdecor-calendar table td.limit {
+    outline: 2px solid #66ad6d;
+    background: #cee0d0;
+}
+
+.inputdecor-box .inputdecor-calendar table td.range {
+    background: #cee0d0;
+    box-shadow: none;
+}
+.inputdecor-box .inputdecor-calendar table td.range:hover,
+.inputdecor-box .inputdecor-calendar table td.limit:hover {
+    background: #a9d6ae;
+}
+
+.inputdecor-box .inputdecor-calendar table td.today {
+    box-shadow: inset 0px 0px 0px 2px #9d0034;
+    -webkit-transition: 0.25s;
+    -o-transition: 0.25s;
+    transition: 0.25s;
+}
+.inputdecor-box .inputdecor-calendar table td.today.range {
+    background: #66ad6d;
+    box-shadow: none;
+    color: white;
+}
+.inputdecor-box .inputdecor-calendar table td.today:hover {
+    background: #88c38e;
+}
+
+.inputdecor-box .inputdecor-calendar table tr.title td {
+    background: #9d0034;;
+    border: none;
+    color: white;
+}
+
+.inputdecor-box .inputdecor-calendar select {
+    width: 49%;
+    margin-bottom: 5px;
+    height: 30px;
+    padding: 0 10px;
+    text-align: center;
+    color: #000000;
+    border: 1px solid #c7c7c7;
+    text-transform: uppercase;
+}
+
+.inputdecor-box .inputdecor-calendar select:nth-child(2) {
+    float: right;
+}
+
+.inputdecor-box .inputdecor-calendar select:nth-child(1) {
+    float: left;
+}
+
+.inputdecor-box .inputdecor-clear, .inputdecor-box .inputdecor-apply {
+    background: #9d0034;
+    border: none;
+    color: white;
+    font-size: 14px;
+    font-weight: 300;
+    width: 49%;
+    padding: 7px 0;
+    margin-top: 15px;
+    display: inline-block;
+    border-radius: 4px;
+    cursor: pointer;
+    -webkit-transition: 0.25s;
+    -o-transition: 0.25s;
+    transition: 0.25s;
+}
+
+.inputdecor-box .inputdecor-clear:hover, .inputdecor-box .inputdecor-apply:hover {
+    opacity: 0.9;
+}
+
+.inputdecor-box .inputdecor-clear {
+    float: left;
+    background: #8c8c8c;
+}
+
+.inputdecor-box .inputdecor-apply {
+    float: right;
+}
