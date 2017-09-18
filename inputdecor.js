@@ -141,6 +141,7 @@
 			this.value = options.elem.val();
 			this.speed = parseInt(this.elem.attr("data-inputdecor-speed")) || 250;
 			this.rollup = self.elem.attr("data-inputdecor-rollup") || false;
+			this.unselected = self.elem.attr("data-inputdecor-unselected") || false;
 			this.active = false;
 			this.text = (function(){
 				var text = "Выберите из списка";
@@ -187,7 +188,7 @@
 			this.list.addClass("list");
 			var list = this.elem[0].innerHTML;
 				list = list.replace(/option+/g, "li");
-			this.list.append('<li>'+this.text+'</li>');
+			if (this.unselected) this.list.append('<li>'+this.text+'</li>');
 			this.list.append(list);
 			this.select.append(this.list);
 
