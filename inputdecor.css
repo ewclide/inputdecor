@@ -27,8 +27,9 @@
 }
 
 .inputdecor-select .list li:hover {
-    background: #f1f1f1;
+    background: #38c6ff;
     padding-left: 15px;
+    color: white;
 }
 
 .inputdecor-select {
@@ -36,39 +37,34 @@
     display: inline-block;
     max-width: 300px;
 }
-
 .inputdecor-select .list {
-    display: none;
-    position: absolute;
     margin: 0;
     padding: 0;
     border-top: none;
     width: 100%;
     list-style: none;
     font-family: arial;
-    border: 1px solid #cccccc;
-    background: hsla(0, 0%, 97%, 1);
+    border: 2px solid #38c6ff;
+    background: white;
     margin-top: 2px;
-    box-shadow: 0px 2px 2px rgba(0,0,0,0.1);
 }
 .inputdecor-select .label:before,
 .inputdecor-select .label:after {
     content: "";
-    background: #6d6d6d;
+    background: #505050;
     width: 6px;
-    height: 2px;
+    height: 1px;
+    right: 10px;
     position: absolute;
     bottom: 0;
     margin: auto;
 }
 .inputdecor-select .label:before {
-    top: -3px;
-    right: 8px;
+    top: -4px;
     transform: rotate(-45deg);
 }
 .inputdecor-select .label:after {
-    top: 3px;
-    right: 8px;
+    top: 4px;
     transform: rotate(45deg);
 }
 .inputdecor-select .label {
@@ -78,7 +74,7 @@
     right: 0;
     margin: auto;
     height: 100%;
-    width: 20px;
+    width: 25px;
     display: block;
     -webkit-transition: 0.25s;
     -o-transition: 0.25s;
@@ -97,25 +93,15 @@
     position: absolute;
     right: 0;
     left: 0;
-    margin: 2px auto;
+    margin: 4px auto;
     width: 0;
     height: 0;
     border-left: 8px solid transparent;
     border-right: 8px solid transparent;
-    border-bottom: 5px solid #c3c3c3;
-}
-.inputdecor-select .rollup:after {
-    content: "";
-    position: absolute;
-    right: 0;
-    left: 0;
-    margin: 3px auto;
-    width: 0;
-    height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-bottom: 5px solid #f1f1f1;
-    box-shadow: 0px 1px 0px #ffffff;
+    border-bottom: 5px solid #38c6ff;
+    -webkit-transition: 0.25s;
+    -o-transition: 0.25s;
+    transition: 0.25s;
 }
 .inputdecor-select .rollup {
     display: block;
@@ -124,30 +110,41 @@
     width: 100%;
     top: 0;
     position: relative;
-    background: linear-gradient(to top, hsla(0, 0%, 90%, 1) ,hsla(0, 0%, 96%, 1));
     cursor: pointer;
-    border-top: 1px solid #ffffff;
-    box-shadow: 0px -1px 0px hsla(0, 0%, 89%, 1);
+    border-top: 1px solid #38c6ff;
+    -webkit-transition: 0.25s;
+    -o-transition: 0.25s;
+    transition: 0.25s;
 }
-
+.inputdecor-select .rollup:hover {
+    background: #38c6ff;
+}
+.inputdecor-select .rollup:hover:before {
+    border-bottom: 5px solid white;
+}
 .inputdecor-select .button {
-    border: none;
-    background: #f9f9f9;
-    border: 1px solid #dadada;
-    width: 200px;
+    background: none;
+    border: 2px solid #dbe2ef;
+    width: 220px;
     display: inline-block;
     vertical-align: middle;
     position: relative;
     cursor: pointer;
-    padding: 6px 30px;
+    padding: 8px 30px;
     color: #757575;
+    font-size: 15px;
+    -webkit-transition: 0.25s;
+    -o-transition: 0.25s;
+    transition: 0.25s;
 }
-
+.inputdecor-select .button.active {
+    border: 2px solid #38c6ff;
+}
 .inputdecor-checkbox .button.active:after,
 .inputdecor-checkbox .button.active:before
 {
     content: "";
-    background: #2a8406;
+    background: #47c2ff;
     width: 7px;
     height: 3px;
     position: absolute;
@@ -172,18 +169,15 @@
 }
 
 .inputdecor-checkbox .button.active {
-    background: #d8d8d8;
-    box-shadow: inset 1px 1px 1px #8a8a8a;
+    border: 2px solid #47c2ff;
 }
 
 .inputdecor-checkbox .button {
-    background: #e8e8e8;
-    width: 16px;
-    height: 16px;
-    border-radius: 3px;
+    width: 20px;
+    height: 20px;
     display: inline-block;
     vertical-align: middle;
-    box-shadow: inset 1px 1px 1px #c5c5c5;
+    border: 2px solid #dbe2ef;
     position: relative;
     cursor: pointer;
 }
@@ -200,7 +194,7 @@
 
 .inputdecor-radio .button.active:before {
     content: "";
-    background: #2a8406;
+    background: #47c2ff;
     width: 10px;
     height: 10px;
     border-radius: 50%;
@@ -210,14 +204,12 @@
     left: 3px;
 }
 .inputdecor-radio .button.active {
-    background: #d8d8d8;
-    box-shadow: inset 1px 1px 1px #8a8a8a;
+    border: 2px solid #47c2ff;
 }
 .inputdecor-radio .button {
-    background: #e4e4e4;
-    box-shadow: inset 1px 1px 1px #c5c5c5;
-    width: 16px;
-    height: 16px;
+    border: 2px solid #dbe2ef;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     position: relative;
     cursor: pointer;

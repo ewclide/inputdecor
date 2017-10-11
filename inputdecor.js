@@ -142,6 +142,7 @@
 			this.speed = parseInt(this.elem.attr("data-inputdecor-speed")) || 250;
 			this.rollup = self.elem.attr("data-inputdecor-rollup") || false;
 			this.unselected = self.elem.attr("data-inputdecor-unselected") || false;
+			this.maxHeight = 100;
 			this.active = false;
 			this.text = (function(){
 				var text = "Выберите из списка";
@@ -186,11 +187,30 @@
 
 			this.list = $(document.createElement("ul"));
 			this.list.addClass("list");
+
 			var list = this.elem[0].innerHTML;
 				list = list.replace(/option+/g, "li");
-			if (this.unselected) this.list.append('<li>'+this.text+'</li>');
+
+			if (this.unselected)
+				this.list.append('<li>'+this.text+'</li>');
+
 			this.list.append(list);
-			this.select.append(this.list);
+
+			this.wrapper = $(document.createElement("div"));
+			this.wrapper.addClass("list-wrapper");
+			this.wrapper.css({
+					"overflow" : "hidden",
+					"position" : "absolute",
+					"width" : "100%"
+				});
+
+			this.wrapper.append(this.list);
+			this.select.append(this.wrapper);
+
+			this.wrapper.ready(function(){
+                self.maxHeight = self.wrapper.outerHeight();
+                self.wrapper.height(0);
+            });
 
 			if (this.rollup)
 			{
@@ -222,24 +242,26 @@
 			});
 		}
 
-		open()
+		open(speed)
 		{
-			this.list.show(this.speed);
+			this.wrapper.animate({ height : this.maxHeight }, speed !== undefined ? speed : this.speed );
+			this.button.addClass("active");
 			this.label.addClass("active");
 			this.active = true;
 		}
 
-		close()
+		close(speed)
 		{
-			this.list.hide(this.speed);
+			this.wrapper.animate({ height : 0 }, speed !== undefined ? speed : this.speed );
+			this.button.removeClass("active");
 			this.label.removeClass("active");
 			this.active = false;
 		}
 
-		toogle()
+		toogle(speed)
 		{
-			if (this.active) this.close();
-			else this.open();
+			if (this.active) this.close(speed);
+			else this.open(speed);
 		}
 
 	}

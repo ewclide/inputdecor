@@ -5,7 +5,7 @@
 	<title>Document</title>
 	<script src="jquery.js"></script>
 	<link rel="stylesheet" href="inputdecor.css">
-	<script src="inputdecor.min.js"></script>
+	<script src="inputdecor.js"></script>
 </head>
 <body>
 	<input type="checkbox" class="inputdecor"><br><br>
