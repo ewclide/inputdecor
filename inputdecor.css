@@ -27,7 +27,7 @@
 }
 
 .inputdecor-select .list li:hover {
-    background: #38c6ff;
+    background: #73d4cc;
     padding-left: 15px;
     color: white;
 }
@@ -213,4 +213,86 @@
     border-radius: 50%;
     position: relative;
     cursor: pointer;
+}
+.inputdecor-file .button:hover {
+    background: #4fc6ff;
+    color: white;
+    border: 2px solid #4fc6ff;
+}
+.inputdecor-file .files-list ul li span:after {
+    content: "";
+    background: #cecece;
+    width: 1px;
+    height: 100%;
+    position: absolute;
+    left: 0;
+}
+.inputdecor-file .files-list ul li span {
+    margin-left: 10px;
+    color: #b3b3b3;
+    position: relative;
+    padding-left: 10px;
+    right: 0;
+    min-width: 60px;
+    font-size: 14px;
+    display: table-cell;
+    vertical-align: middle;
+}
+.inputdecor-file .files-list ul li p {
+    display: table-cell;
+    vertical-align: middle;
+    font-size: 14px;
+    color: #329ed2;
+    margin: 0;
+    padding-right: 10px;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    position: relative;
+}
+.inputdecor-file .files-list ul li p:after {
+    height: 100%;
+    background: white;
+    width: 10px;
+    content: "";
+    right: 0;
+    top: 0;
+    position: absolute;
+}
+.inputdecor-file .files-list ul li {
+    display: table-row;
+    line-height: 20px;
+}
+
+.inputdecor-file .files-list ul {
+    list-style: none;
+    padding: 0;
+    border: 1px solid #4fc6ff;
+    padding: 5px 10px;
+    margin: 0;
+}
+.inputdecor-file .files-list {
+    display: inline-block;
+    margin-left: 20px;
+    vertical-align: top;
+}
+.inputdecor-file .button {
+    background: none;
+    padding: 0 20px;
+    height: 30px;
+    color: #656565;
+    font-size: 14px;
+    border: 2px solid #dce3f0;
+    display: inline-block;
+    vertical-align: top;
+    cursor: pointer;
+    -webkit-transition: 0.25s;
+    -o-transition: 0.25s;
+    transition: 0.25s;
+}
+.inputdecor-file .button:focus {
+    outline: none;
+}
+.inputdecor-file {
+    font-family: Arial;
 }

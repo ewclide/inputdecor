@@ -60,8 +60,129 @@
 				this.input = new Checkbox(options);
 			else if (type == "radio")
 				this.input = new Radio(options);
-			else this.input = new Checkbox(options);
+			else if (type == "file")
+				this.input = new File(options);
   		}
+	}
+
+	class File
+	{
+		constructor(options)
+		{
+			this.init(options);
+		}
+
+		init(options)
+		{
+			var self = this;
+			this.elem = options.elem;
+			this.files = [];
+
+			this.settings = {
+				text : options.text || this.elem.attr("data-text") || "Выберите файл",
+				multiple : options.multiple || this.elem.attr("data-multiple") || false,
+				filesCount : options.filesCount || this.elem.attr("data-files-count") || false,
+				maxSize : options.maxSize || this.elem.attr("data-max-size") || false,
+				maxSumSize : options.maxSumSize || this.elem.attr("data-max-sumsize") || false,
+				drop : options.drop || this.elem.attr("data-drop") || false,
+				class : options.class || this.elem.attr("data-class") || false
+			}
+
+			this.create(this.settings);
+		}
+
+		create(settings)
+		{
+			var self = this;
+
+			this.elem.hide();
+
+			if (settings.multiple)
+				this.elem[0].setAttribute("multiple", "");
+
+			this.button = $(document.createElement("button"));
+			this.button.addClass("button");
+			this.button.text(settings.text);
+			this.button.click(function(){
+				self.elem.click();
+			});
+
+			var wrapper = $(document.createElement("div"));
+				wrapper.addClass("inputdecor-file");
+
+			if (settings.class)
+				wrapper.addClass(settings.class);
+
+			this.filesList = $(document.createElement("div"));
+			this.filesList.addClass("files-list");
+
+			this.elem.after(wrapper);
+			wrapper.append(this.button);
+			wrapper.append(this.filesList);
+			wrapper.append(this.elem);
+
+			this.elem.change(function(e){
+				self.files = self.getFiles(self.elem[0].files);
+				self.showFiles(self.files);
+				self.elem.val('');
+			});
+		}
+
+		getFiles(files)
+		{
+			var list = [];
+
+			for (var i = 0; i < files.length; i++)
+				list.push(files[i]);
+
+			return list;
+		}
+
+		showFiles(files)
+		{
+			var self = this;
+
+			var list = $(document.createElement("ul")),
+				error = "",
+				sumsize = 0;
+
+			if (files.length > self.settings.filesCount)
+				error = "Максимальное количество файлов - " + self.settings.filesCount;
+			else
+			files.forEach(function(file){
+
+				if (self.settings.maxSumSize)
+					sumsize += file.size;
+
+				if (sumsize && sumsize > self.settings.maxSumSize)
+				{
+					error = "Превышен суммарный размер файлов"
+					+ ".\nМаксимальный суммареый размер - " + Math.round(self.settings.maxSumSize / 1024) + "kb";
+					return;
+				}
+
+				if (self.settings.maxSize && file.size > self.settings.maxSize)
+				{
+					error = "Превышен размер файла \"" + file.name + "\""
+					+ ".\nМаксимальный размер - " + Math.round(self.settings.maxSize / 1024) + "kb";
+					return;
+				}
+
+				var size = Math.round(file.size / 1024),
+					name = file.name;
+
+				list.append("<li><p>" + name + "</p><span>" + size + "kb</span>" + "</li>");
+			});
+
+			self.filesList.empty();
+
+			if (error)
+			{
+				alert(error);
+				self.elem.val('');
+			}
+			else self.filesList.append(list);
+		}
 	}
 
 	class Checkbox extends Box

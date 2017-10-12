@@ -21,6 +21,11 @@
 		<option value="4">value 4</option>
 		<option value="5">value 5</option>
 	</select><br><br>
-	<input type="file" name="file">
+	<input type="file" name="file" class="inputdecor"
+		data-multiple="true"
+		data-files-count="3"
+		data-drop="true"
+		data-text="choose"
+		data-class="test">
 </body>
 </html>
