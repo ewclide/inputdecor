@@ -2,6 +2,19 @@
 
 ;(function(){
 
+	function checkBoolean(value, def)
+	{
+		if (typeof value == "string")
+			if (value == "true") value = true;
+			else if (value == "false") value = false;
+			else value = def;
+
+		else if (value == undefined)
+			value = def;
+
+		return value;
+	}
+
 	class Box
 	{
 		constructor(){}
@@ -23,7 +36,7 @@
 
 			this.box.append(this.elem);
 
-			this.button.click(function(){
+			this.button.bind("click", function(){
 				self.toogle();
 			});
 		}
@@ -213,8 +226,18 @@
 		constructor(options)
 		{
 			super();
+			var self = this;
 			this.init(options);
 			super.create("radio");
+			this.button.unbind("click");
+			this.button.bind("click", function(){
+
+				if (!self.remove && !self.active)
+					self.activate();
+
+				else if (self.remove)
+					self.toogle();
+			});
 		}
 
 		init(options)
@@ -228,6 +251,7 @@
 				if (checked) return true;
 				else return false;
 			})();
+			this.remove = checkBoolean(options.remove || self.elem.attr("data-remove"), true);
 			this.radios = $('input[type=radio][name="' + this.name + '"]');
 			this.elem[0].inputdecor = this;
 		}
@@ -260,9 +284,9 @@
 			this.elem = options.elem;
 			this.name = options.elem.attr("name");
 			this.value = options.elem.val();
-			this.speed = parseInt(this.elem.attr("data-inputdecor-speed")) || 250;
-			this.rollup = self.elem.attr("data-inputdecor-rollup") || false;
-			this.unselected = self.elem.attr("data-inputdecor-unselected") || false;
+			this.speed = parseInt(this.elem.attr("data-speed")) || 250;
+			this.rollup = self.elem.attr("data-rollup") || false;
+			this.unselected = self.elem.attr("data-unselected") || false;
 			this.maxHeight = 100;
 			this.active = false;
 			this.text = (function(){
@@ -271,12 +295,12 @@
 				if (active.length) text = active.text();
 				else
 				{
-					var attr = self.elem.attr("data-inputdecor-text");
+					var attr = self.elem.attr("data-text");
 					if (attr) text = attr;
 				}
 				return text;
 			})();
-			this.class = this.elem.attr("data-inputdecor-class") || "";
+			this.class = this.elem.attr("data-class") || "";
 			this.create();
 		}
 
