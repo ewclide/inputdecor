@@ -10,7 +10,7 @@
 <body>
 	<input type="checkbox" class="inputdecor"><br><br>
 	<input type="radio" name="radio" class="inputdecor" checked value="1">
-	<input type="radio" name="radio" class="inputdecor" value="2" data-remove="false">
+	<input type="radio" name="radio" class="inputdecor" value="2" data-remove="true">
 	<input type="radio" name="radio" class="inputdecor" value="3">
 	<input type="radio" name="radio" class="inputdecor" value="4">
 	<input type="radio" name="radio" class="inputdecor"><br><br>

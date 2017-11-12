@@ -11,7 +11,6 @@
 
 		else if (value == undefined)
 			value = def;
-
 		return value;
 	}
 
@@ -254,7 +253,7 @@
 				if (checked) return true;
 				else return false;
 			})();
-			this.remove = checkBoolean(options.remove || self.elem.attr("data-remove"), true);
+			this.remove = checkBoolean(options.remove || self.elem.attr("data-remove"), false);
 			this.radios = $('input[type=radio][name="' + this.name + '"]');
 			this.elem[0].inputdecor = this;
 		}
