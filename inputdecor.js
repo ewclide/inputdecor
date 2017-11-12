@@ -408,7 +408,7 @@
 			if (this.active) this.close(speed);
 			else this.open(speed);
 		}
-
+		
 	}
 
 	$.fn.decorate = function(options)
