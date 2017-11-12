@@ -135,9 +135,12 @@
 			wrapper.append(this.elem);
 
 			this.elem.change(function(e){
-				self.files = self.getFiles(self.elem[0].files);
-				self.showFiles(self.files);
-				self.elem.val('');
+				if (self.elem[0].files)
+				{
+					self.files = self.getFiles(self.elem[0].files);
+					self.showFiles(self.files);
+					self.elem.val('');
+				}
 			});
 		}
 
@@ -284,23 +287,23 @@
 			this.elem = options.elem;
 			this.name = options.elem.attr("name");
 			this.value = options.elem.val();
-			this.speed = parseInt(this.elem.attr("data-speed")) || 250;
-			this.rollup = self.elem.attr("data-rollup") || false;
-			this.unselected = self.elem.attr("data-unselected") || false;
+			this.speed = options.speed || parseInt(this.elem.attr("data-speed")) || 250;
+			this.rollup = options.rollup || self.elem.attr("data-rollup") || false;
+			this.unselected = options.unselected || self.elem.attr("data-unselected") || false;
+			this.unselectedText = options.unselectedText || self.elem.attr("data-unselected-text") || "Не выбрано";
 			this.maxHeight = 100;
 			this.active = false;
 			this.text = (function(){
-				var text = "Выберите из списка";
-				var active = self.elem.find("li.active");
-				if (active.length) text = active.text();
-				else
-				{
-					var attr = self.elem.attr("data-text");
-					if (attr) text = attr;
-				}
+
+				var text;
+
+				if (self.elem.find("li.active").length) text = active.text();
+				else text = options.text || self.elem.attr("data-text") || "Выберите из списка";
+
 				return text;
+
 			})();
-			this.class = this.elem.attr("data-class") || "";
+			this.class = options.class || this.elem.attr("data-class") || "";
 			this.create();
 		}
 
@@ -337,7 +340,7 @@
 				list = list.replace(/option+/g, "li");
 
 			if (this.unselected)
-				this.list.append('<li>'+this.text+'</li>');
+				this.list.append('<li unselected >'+this.unselectedText+'</li>');
 
 			this.list.append(list);
 
@@ -377,8 +380,17 @@
 				if (e.target.tagName == "LI")
 				{
 					var target = $(e.target);
-					self.hidden.val(target.attr("value"));
-					self.button.text(target.text());
+					if (target.text() == self.unselectedText)
+					{
+						self.hidden.val("");
+						self.button.text(self.text);
+					}
+					else
+					{
+						self.hidden.val(target.attr("value"));
+						self.button.text(target.text());
+					}
+					
 				}
 			});
 
