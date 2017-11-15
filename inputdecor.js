@@ -14,6 +14,17 @@
 		return value;
 	}
 
+	function getAllAttrs($element)
+	{
+		var result = {},
+			attrs = $element[0].attributes;
+
+		for (var i = 0; i < attrs.length; i++)
+			result[attrs[i].name] = attrs[i].value;
+
+		return result;
+	}
+
 	class Box
 	{
 		constructor(){}
@@ -22,18 +33,18 @@
 		{
 			var self = this
 
-			this.elem.hide();
+			this.$element.hide();
 
 			this.box = $(document.createElement("div"));
 			this.box.addClass("inputdecor-" + type);
-			this.elem.before(this.box);
+			this.$element.before(this.box);
 
 			this.button = $(document.createElement("div"));
 			this.button.addClass("button");
 			if (this.active) this.button.addClass("active");
 			this.box.append(this.button);
 
-			this.box.append(this.elem);
+			this.box.append(this.$element);
 
 			this.button.bind("click", function(){
 				self.toogle();
@@ -43,14 +54,14 @@
 		activate()
 		{
 			this.button.addClass("active");
-			this.elem.prop({ 'checked': true });
+			this.$element.prop({ 'checked': true });
 			this.active = true;
 		}
 
 		deactivate()
 		{
 			this.button.removeClass("active");
-			this.elem.prop({ 'checked': false });
+			this.$element.prop({ 'checked': false });
 			this.active = false;
 		}
 
@@ -63,41 +74,41 @@
 
 	class Decorator
 	{
-		constructor(options)
+		constructor($element)
 		{
-    		var type = options.elem.attr("type") || options.elem[0].tagName.toLowerCase();
+    		var type = $element.attr("type") || $element[0].tagName.toLowerCase();
 			if (type == "ul" || type == "select")
-				this.input = new Select(options);
+				this.input = new Select($element);
 			else if (type == "checkbox")
-				this.input = new Checkbox(options);
+				this.input = new Checkbox($element);
 			else if (type == "radio")
-				this.input = new Radio(options);
+				this.input = new Radio($element);
 			else if (type == "file")
-				this.input = new File(options);
+				this.input = new File($element);
   		}
 	}
 
 	class File
 	{
-		constructor(options)
+		constructor($element)
 		{
-			this.init(options);
+			this.init($element);
 		}
 
-		init(options)
+		init($element)
 		{
 			var self = this;
-			this.elem = options.elem;
+			this.$element = $element;
 			this.files = [];
 
 			this.settings = {
-				text : options.text || this.elem.attr("data-text") || "Выберите файл",
-				multiple : options.multiple || this.elem.attr("data-multiple") || false,
-				filesCount : options.filesCount || this.elem.attr("data-files-count") || false,
-				maxSize : options.maxSize || this.elem.attr("data-max-size") || false,
-				maxSumSize : options.maxSumSize || this.elem.attr("data-max-sumsize") || false,
-				drop : options.drop || this.elem.attr("data-drop") || false,
-				class : options.class || this.elem.attr("data-class") || false
+				text : this.$element.attr("data-text") || "Выберите файл",
+				multiple : this.$element.attr("data-multiple") || false,
+				filesCount : this.$element.attr("data-files-count") || false,
+				maxSize : this.$element.attr("data-max-size") || false,
+				maxSumSize : this.$element.attr("data-max-sumsize") || false,
+				drop : this.$element.attr("data-drop") || false,
+				class : this.$element.attr("data-class") || false
 			}
 
 			this.create(this.settings);
@@ -107,16 +118,16 @@
 		{
 			var self = this;
 
-			this.elem.hide();
+			this.$element.hide();
 
 			if (settings.multiple)
-				this.elem[0].setAttribute("multiple", "");
+				this.$element[0].setAttribute("multiple", "");
 
 			this.button = $(document.createElement("button"));
 			this.button.addClass("button");
 			this.button.text(settings.text);
 			this.button.click(function(){
-				self.elem.click();
+				self.$element.click();
 			});
 
 			var wrapper = $(document.createElement("div"));
@@ -128,17 +139,17 @@
 			this.filesList = $(document.createElement("div"));
 			this.filesList.addClass("files-list");
 
-			this.elem.after(wrapper);
+			this.$element.after(wrapper);
 			wrapper.append(this.button);
 			wrapper.append(this.filesList);
-			wrapper.append(this.elem);
+			wrapper.append(this.$element);
 
-			this.elem.change(function(e){
-				if (self.elem[0].files)
+			this.$element.change(function(e){
+				if (self.$element[0].files)
 				{
-					self.files = self.getFiles(self.elem[0].files);
+					self.files = self.getFiles(self.$element[0].files);
 					self.showFiles(self.files);
-					self.elem.val('');
+					self.$element.val('');
 				}
 			});
 		}
@@ -194,7 +205,7 @@
 			if (error)
 			{
 				alert(error);
-				self.elem.val('');
+				self.$element.val('');
 			}
 			else self.filesList.append(list);
 		}
@@ -202,21 +213,21 @@
 
 	class Checkbox extends Box
 	{
-		constructor(options)
+		constructor($element)
 		{
 			super();
-			this.init(options);
+			this.init($element);
 			super.create("checkbox");
 		}
 
-		init(options)
+		init($element)
 		{
 			var self = this;
-			this.elem = options.elem;
-			this.name = options.elem.attr("name");
-			this.value = options.elem.val();
+			this.$element = $element;
+			this.name = $element.attr("name");
+			this.value = $element.val();
 			this.active = (function(){
-				var checked = self.elem.prop("checked") || self.elem.attr("checked");
+				var checked = self.$element.prop("checked") || self.$element.attr("checked");
 				if (checked) return true;
 				else return false;
 			})();
@@ -225,11 +236,11 @@
 
 	class Radio extends Box
 	{
-		constructor(options)
+		constructor($element)
 		{
 			super();
 			var self = this;
-			this.init(options);
+			this.init($element);
 			super.create("radio");
 			this.button.unbind("click");
 			this.button.bind("click", function(){
@@ -242,20 +253,20 @@
 			});
 		}
 
-		init(options)
+		init($element)
 		{
 			var self = this;
-			this.elem = options.elem;
-			this.name = options.elem.attr("name");
-			this.value = options.elem.val();
+			this.$element = $element;
+			this.name = $element.attr("name");
+			this.value = $element.val();
 			this.active = (function(){
-				var checked = self.elem.prop("checked") || self.elem.attr("checked");
+				var checked = self.$element.prop("checked") || self.$element.attr("checked");
 				if (checked) return true;
 				else return false;
 			})();
-			this.remove = checkBoolean(options.remove || self.elem.attr("data-remove"), false);
+			this.remove = checkBoolean(self.$element.attr("data-remove"), false);
 			this.radios = $('input[type=radio][name="' + this.name + '"]');
-			this.elem[0].inputdecor = this;
+			this.$element[0].inputdecor = this;
 		}
 
 		deactiveOther(current)
@@ -275,34 +286,34 @@
 
 	class Select
 	{
-		constructor(options)
+		constructor($element)
 		{
-			this.init(options);
+			this.init($element);
 		}
 
-		init(options)
+		init($element)
 		{
 			var self = this;
-			this.elem = options.elem;
-			this.name = options.elem.attr("name");
-			this.value = options.elem.val();
-			this.speed = options.speed || parseInt(this.elem.attr("data-speed")) || 250;
-			this.rollup = options.rollup || self.elem.attr("data-rollup") || false;
-			this.unselected = options.unselected || self.elem.attr("data-unselected") || false;
-			this.unselectedText = options.unselectedText || self.elem.attr("data-unselected-text") || "Не выбрано";
+			this.$element = $element;
+			this.name = $element.attr("name");
+			this.value = $element.val();
+			this.speed = parseInt(this.$element.attr("data-speed")) || 250;
+			this.rollup = self.$element.attr("data-rollup") || false;
+			this.unselected = self.$element.attr("data-unselected") || false;
+			this.unselectedText = self.$element.attr("data-unselected-text") || "Не выбрано";
 			this.maxHeight = 100;
 			this.active = false;
 			this.text = (function(){
 
 				var text;
 
-				if (self.elem.find("li.active").length) text = active.text();
-				else text = options.text || self.elem.attr("data-text") || "Выберите из списка";
+				if (self.$element.find("li.active").length) text = active.text();
+				else text = self.$element.attr("data-text") || "Выберите из списка";
 
 				return text;
 
 			})();
-			this.class = options.class || this.elem.attr("data-class") || "";
+			this.class = this.$element.attr("data-class") || "";
 			this.create();
 		}
 
@@ -310,12 +321,12 @@
 		{
 			var self = this;
 
-			this.elem.hide();
+			this.$element.hide();
 
 			this.select = $(document.createElement("div"));
 			this.select.addClass("inputdecor-select");
 			if (this.class) this.select.addClass(this.class);
-			this.elem.before(this.select);
+			this.$element.before(this.select);
 
 			this.button = $(document.createElement("button"));
 			this.button.addClass("button");
@@ -328,6 +339,7 @@
 
 			this.hidden = $(document.createElement("input"));
 			this.hidden.attr("type", "hidden");
+			this.hidden.attr(getAllAttrs(this.$element));
 			if (this.name) this.hidden.attr("name", this.name);
 			this.hidden.val(this.value);
 			this.select.append(this.hidden);
@@ -335,7 +347,7 @@
 			this.list = $(document.createElement("ul"));
 			this.list.addClass("list");
 
-			var list = this.elem[0].innerHTML;
+			var list = this.$element[0].innerHTML;
 				list = list.replace(/option+/g, "li");
 
 			if (this.unselected)
@@ -369,7 +381,7 @@
 				});
 			}
 
-			this.elem.remove();
+			this.$element.remove();
 
 			this.button.click(function(e){
 				self.toogle();
@@ -422,12 +434,10 @@
 		
 	}
 
-	$.fn.decorate = function(options)
+	$.fn.decorate = function()
     {
         this.each(function(){
-            if (options) options.elem = $(this);
-            else options = { elem: $(this) };
-            this.binder = new Decorator(options);
+            this.binder = new Decorator($(this));
         });
     }
 
