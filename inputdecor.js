@@ -55,6 +55,7 @@
 		{
 			this.button.addClass("active");
 			this.$element.prop({ 'checked': true });
+			this.$element.change();
 			this.active = true;
 		}
 
@@ -62,6 +63,7 @@
 		{
 			this.button.removeClass("active");
 			this.$element.prop({ 'checked': false });
+			this.$element.change();
 			this.active = false;
 		}
 
@@ -319,14 +321,19 @@
 
 		create()
 		{
-			var self = this;
+			var self = this,
+				selected = this.$element[0].selectedIndex;
 
 			this.$element.hide();
+
+			if (this.unselected)
+				this.$element.prepend('<option ' + (selected ? false : 'selected') + '>' + this.unselectedText + '</option>');
 
 			this.select = $(document.createElement("div"));
 			this.select.addClass("inputdecor-select");
 			if (this.class) this.select.addClass(this.class);
 			this.$element.before(this.select);
+			//this.select.append(this.$element);
 
 			this.button = $(document.createElement("button"));
 			this.button.addClass("button");
@@ -339,7 +346,6 @@
 
 			this.hidden = $(document.createElement("input"));
 			this.hidden.attr("type", "hidden");
-			this.hidden.attr(getAllAttrs(this.$element));
 			if (this.name) this.hidden.attr("name", this.name);
 			this.hidden.val(this.value);
 			this.select.append(this.hidden);
@@ -347,11 +353,25 @@
 			this.list = $(document.createElement("ul"));
 			this.list.addClass("list");
 
-			var list = this.$element[0].innerHTML;
-				list = list.replace(/option+/g, "li");
+			var options = this.$element.find("option"),
+				list = "";
 
-			if (this.unselected)
-				this.list.append('<li unselected >'+this.unselectedText+'</li>');
+			if (options.length)
+			{
+				options.each(function(){
+					list += '<li>' + this.innerText + '</li>';
+				});
+				this.select.append(this.$element);
+			}
+			else list = this.$element[0].innerHTML;
+
+			if (selected !== undefined)
+			{
+				var option = this.$element[0].options[selected];
+
+				this.hidden.val(option.value);
+				this.button.text(option.text);
+			}
 
 			this.list.append(list);
 
@@ -381,7 +401,7 @@
 				});
 			}
 
-			this.$element.remove();
+			//this.$element.remove();
 
 			this.button.click(function(e){
 				self.toogle();
@@ -401,7 +421,9 @@
 						self.hidden.val(target.attr("value"));
 						self.button.text(target.text());
 					}
-					
+					self.close();
+					self.$element[0].selectedIndex = $(e.target).index();
+					self.$element.change();
 				}
 			});
 
