@@ -29,6 +29,7 @@
 - unselected - add unselected value to the list
 - unselectedText - text of unselected option
 - class - add your class to wrapper
+- onchange - allows to define the onchange callback
 - text - text on button
 
 	select input also can use on html list <ul><li><a href="">Text</a></li></ul>
@@ -37,7 +38,7 @@
 
 	it have two way for initialize:
 	1) create div element with class "inputdecor" and define attributes wich must begin from "data-" + option
-	2) use javascript notation
+	2) use javascript notation // need to update
 
 ### Examples
 
