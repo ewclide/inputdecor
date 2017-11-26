@@ -14,13 +14,19 @@
 	<input type="radio" name="radio" class="inputdecor" value="3">
 	<input type="radio" name="radio" class="inputdecor" value="4">
 	<input type="radio" name="radio" class="inputdecor"><br><br>
-	<select class="inputdecor" data-rollup="true" data-speed="150" data-unselected="true">
-		<option data-test="asd" value="1">value 1</option>
-		<option value="2">value 2</option>
-		<option value="3">value 3</option>
-		<option value="4">value 4</option>
-		<option value="5">value 5</option>
-	</select><br><br>
+	<script>
+		var change = function(e)
+		{
+			console.log(e);
+		}
+	</script>
+	<ul class="inputdecor" data-rollup="true" data-unselected="true" data-onchange="change">
+		<li data-test="asd" value="value 1" selected>value 1</li>
+		<li value="value 2">value 2</li>
+		<li value="value 3">value 3</li>
+		<li value="value 4">value 4</li>
+		<li value="value 5">value 5</li>
+	</ul><br><br>
 	<input type="file" name="file" class="inputdecor"
 		data-multiple="true"
 		data-files-count="3"

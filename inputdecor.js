@@ -2,6 +2,17 @@
 
 ;(function(){
 
+	var DOC = {
+		create : function(tag, attr, css)
+		{
+			var $element = $(document.createElement(tag));
+			if (typeof attr == "string") $element.addClass(attr);
+			else if (typeof attr == "object") $element.attr(attr);
+			if (css) $element.css(css);
+			return $element;
+		}
+	}
+
 	function checkBoolean(value, def)
 	{
 		if (typeof value == "string")
@@ -35,15 +46,11 @@
 
 			this.$element.hide();
 
-			this.box = $(document.createElement("div"));
-			this.box.addClass("inputdecor-" + type);
+			this.box = DOC.create("div", "inputdecor-" + type);
+			this.button = DOC.create("div", "button " + (this.active ? "active" : false));
+
 			this.$element.before(this.box);
-
-			this.button = $(document.createElement("div"));
-			this.button.addClass("button");
-			if (this.active) this.button.addClass("active");
 			this.box.append(this.button);
-
 			this.box.append(this.$element);
 
 			this.button.bind("click", function(){
@@ -125,21 +132,12 @@
 			if (settings.multiple)
 				this.$element[0].setAttribute("multiple", "");
 
-			this.button = $(document.createElement("button"));
-			this.button.addClass("button");
-			this.button.text(settings.text);
+			var wrapper = DOC.create("div", "inputdecor-file " + (settings.class ? settings.class : false));
+			this.filesList = DOC.create("div", "files-list");
+			this.button = DOC.create("button", "button").text(settings.text);
 			this.button.click(function(){
 				self.$element.click();
 			});
-
-			var wrapper = $(document.createElement("div"));
-				wrapper.addClass("inputdecor-file");
-
-			if (settings.class)
-				wrapper.addClass(settings.class);
-
-			this.filesList = $(document.createElement("div"));
-			this.filesList.addClass("files-list");
 
 			this.$element.after(wrapper);
 			wrapper.append(this.button);
@@ -290,168 +288,185 @@
 	{
 		constructor($element)
 		{
-			this.init($element);
-		}
-
-		init($element)
-		{
 			var self = this;
 			this.$element = $element;
-			this.name = $element.attr("name");
-			this.value = $element.val();
-			this.speed = parseInt(this.$element.attr("data-speed")) || 250;
-			this.rollup = self.$element.attr("data-rollup") || false;
-			this.unselected = self.$element.attr("data-unselected") || false;
-			this.unselectedText = self.$element.attr("data-unselected-text") || "Не выбрано";
-			this.maxHeight = 100;
-			this.active = false;
-			this.text = (function(){
+			this.$elements = {};
+			this.settings = {
+				active : false,
+				name   : $element.attr("name"),
+				value  : $element.val(),
+				speed  : parseInt(this.$element.attr("data-speed")) || 250,
+				rollup : self.$element.attr("data-rollup") || false,
+				unselected : self.$element.attr("data-unselected") || false,
+				unselectedText : self.$element.attr("data-unselected-text") || "Не выбрано",
+				class : this.$element.attr("data-class") || "",
+				changeFunc : this.$element.attr("data-onchange") || function(){},
+				text  : (function()
+				{
+					var text;
+					if (self.$element.find("li.active").length) text = active.text();
+					else text = self.$element.attr("data-text") || "Выберите из списка";
+					return text;
+				})()
+			}
 
-				var text;
-
-				if (self.$element.find("li.active").length) text = active.text();
-				else text = self.$element.attr("data-text") || "Выберите из списка";
-
-				return text;
-
-			})();
-			this.class = this.$element.attr("data-class") || "";
-			this.create();
+			this._build();
 		}
 
-		create()
+		_build()
 		{
 			var self = this,
-				selected = this.$element[0].selectedIndex;
+				$elements = this.$elements,
+				settings = this.settings,
+				list = "",
+				options;
 
 			this.$element.hide();
 
-			if (this.unselected)
-				this.$element.prepend('<option ' + (selected ? false : 'selected') + '>' + this.unselectedText + '</option>');
+			/*-------add unselected--------*/
+			if (settings.unselected)
+			{
+				var element = this.$element[0];
 
-			this.select = $(document.createElement("div"));
-			this.select.addClass("inputdecor-select");
-			if (this.class) this.select.addClass(this.class);
-			this.$element.before(this.select);
-			//this.select.append(this.$element);
+				if (element.tagName.toLowerCase() == "select")
+				{
+					this.$element.prepend('<option>' + settings.unselectedText + '</option>');
+					if (element.selectedIndex == 1) element.selectedIndex = 0;
+				}
+				else if (element.tagName.toLowerCase() == "ul")
+				{
+					this.$element.prepend('<li>' + settings.unselectedText + '</li>');
+				}	
+			}
 
-			this.button = $(document.createElement("button"));
-			this.button.addClass("button");
-			this.button.text(this.text);
-			this.select.append(this.button);
+			/*-------prepare changeFunc--------*/
+            settings.changeFunc = eval("(function(){ return " + settings.changeFunc + "})()");
 
-			this.label = $(document.createElement("span"));
-			this.label.addClass("label");
-			this.select.append(this.label);
+			/*-------create elements--------*/
+			$elements.select  = DOC.create("div", settings.class ? settings.class : "inputdecor-select");
+			$elements.button  = DOC.create("button", "button").text(settings.text);
+			$elements.label   = DOC.create("span", "label");
+			$elements.hidden  = DOC.create("input", { "type" : "hidden", "name" : settings.name }).val(settings.value);
+			$elements.list    = DOC.create("ul", "list"),
+			$elements.wrapper = DOC.create(
+				"div",
+				"list-wrapper",
+				{
+					"position" : "absolute",
+					"width" : "100%",
+					"transform" : "scaleY(0)",
+					"transform-origin" : "100% 0",
+					"transition" : settings.speed + "ms"
+				}
+			)
 
-			this.hidden = $(document.createElement("input"));
-			this.hidden.attr("type", "hidden");
-			if (this.name) this.hidden.attr("name", this.name);
-			this.hidden.val(this.value);
-			this.select.append(this.hidden);
+			/*-------append elements--------*/
+			this.$element.before($elements.select);
+			$elements.select.append($elements.button);
+			$elements.select.append($elements.label);
+			$elements.select.append($elements.hidden);
+			$elements.select.append($elements.wrapper);
+			$elements.wrapper.append($elements.list);
 
-			this.list = $(document.createElement("ul"));
-			this.list.addClass("list");
-
-			var options = this.$element.find("option"),
-				list = "";
+			/*-------create option list--------*/
+			options = this.$element.find("option");
 
 			if (options.length)
 			{
 				options.each(function(){
-					list += '<li>' + this.innerText + '</li>';
-				});
-				this.select.append(this.$element);
-			}
-			else list = this.$element[0].innerHTML;
-
-			if (selected !== undefined)
-			{
-				var option = this.$element[0].options[selected];
-
-				this.hidden.val(option.value);
-				this.button.text(option.text);
-			}
-
-			this.list.append(list);
-
-			this.wrapper = $(document.createElement("div"));
-			this.wrapper.addClass("list-wrapper");
-			this.wrapper.css({
-					"overflow" : "hidden",
-					"position" : "absolute",
-					"width" : "100%"
-				});
-
-			this.wrapper.append(this.list);
-			this.select.append(this.wrapper);
-
-			this.wrapper.ready(function(){
-                self.maxHeight = self.wrapper.outerHeight();
-                self.wrapper.height(0);
-            });
-
-			if (this.rollup)
-			{
-				this.rollup = $(document.createElement("span"));
-				this.rollup.addClass("rollup");
-				this.list.append(this.rollup);
-				this.rollup.click(function(e){
-					self.close();
-				});
-			}
-
-			//this.$element.remove();
-
-			this.button.click(function(e){
-				self.toogle();
-			});
-
-			this.list.click(function(e){
-				if (e.target.tagName == "LI")
-				{
-					var target = $(e.target);
-					if (target.text() == self.unselectedText)
+					var option = $(this);
+					if (option.attr("selected"))
 					{
-						self.hidden.val("");
-						self.button.text(self.text);
+						$elements.hidden.val(option.val());
+						$elements.button.text(option.text());
+						list += '<li selected >' + option.text() + '</li>';
 					}
 					else
 					{
-						self.hidden.val(target.attr("value"));
-						self.button.text(target.text());
+						list += '<li>' + option.text() + '</li>';
 					}
+				});
+
+				$elements.select.append(this.$element);
+			}
+			else
+			{
+				list = this.$element[0].innerHTML;
+				this.$element.remove();
+			}
+
+			$elements.list.append(list);
+
+			/*-------create rollup--------*/
+			if (settings.rollup)
+			{
+				$elements.rollup = DOC.create("span", "rollup");
+				$elements.list.append($elements.rollup);
+				$elements.rollup.click(function(e){
 					self.close();
-					self.$element[0].selectedIndex = $(e.target).index();
+				});
+			}
+
+			/*-------add event listeners--------*/
+			$elements.button.click(function(e){
+				self.toogle();
+			});
+
+			$elements.list.click(function(e){
+				if (e.target.tagName == "LI")
+				{
+					var target = $(e.target),
+						value = target.attr("value"),
+						text = target.text();
+
+					$elements.list.find("li").removeAttr("selected");
+
+					if (text == settings.unselectedText)
+					{
+						$elements.hidden.val("");
+						$elements.button.text(settings.text);
+					}
+					else
+					{
+						target.attr("selected", "");
+						$elements.hidden.val(value);
+						$elements.button.text(text);
+					}
+
+					self.close();
+					self.$element[0].selectedIndex = target.index();
 					self.$element.change();
+					settings.changeFunc(value);
 				}
 			});
 
 			document.body.addEventListener("click", function(e){
-				if (e.target.parentNode != self.select[0]) self.close();
+				if (e.target.parentNode != $elements.select[0]) self.close();
 			});
+
+			console.log(this);
 		}
 
-		open(speed)
+		open()
 		{
-			this.wrapper.animate({ height : this.maxHeight }, speed !== undefined ? speed : this.speed );
-			this.button.addClass("active");
-			this.label.addClass("active");
-			this.active = true;
+			this.$elements.wrapper.css("transform", "scaleY(1)");
+			this.$elements.button.addClass("active");
+			this.$elements.label.addClass("active");
+			this.settings.active = true;
 		}
 
-		close(speed)
+		close()
 		{
-			this.wrapper.animate({ height : 0 }, speed !== undefined ? speed : this.speed );
-			this.button.removeClass("active");
-			this.label.removeClass("active");
-			this.active = false;
+			this.$elements.wrapper.css("transform", "scaleY(0)");
+			this.$elements.button.removeClass("active");
+			this.$elements.label.removeClass("active");
+			this.settings.active = false;
 		}
 
-		toogle(speed)
+		toogle()
 		{
-			if (this.active) this.close(speed);
-			else this.open(speed);
+			if (this.settings.active) this.close();
+			else this.open();
 		}
 		
 	}
