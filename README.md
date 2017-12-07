@@ -8,13 +8,13 @@
 ### Agruments
 
 **File**
-- text - text on button
-- multiple - uses multyfile mode
-- filesCount - defines max files count on multyfile mode
-- maxSize - defines max size of the each files count on multyfile mode
-- maxSumSize - defines max size of the all files count on multyfile mode
-- drop - uses drag and drop mode // need to add
+- text-button - add user text to button
+- text-unselected - defines unselected text
 - class - add your class to wrapper
+- close - add close button
+- size - shows sizes of the files
+- max-count - defines max files count on multyfile mode
+- drop - need to develop...
 
 **Checkbox**
 - have not special options, but support standart attribute checked
@@ -32,7 +32,9 @@
 - onchange - allows to define the onchange callback
 - text - text on button
 
+	**WARNING!**
 	select input also can use on html list <ul><li><a href="">Text</a></li></ul>
+	li elements will save their attributes
 
 ### How to use
 
@@ -45,19 +47,40 @@
 ```html
 	<input type="checkbox" class="inputdecor">
 	<input type="radio" name="radio" class="inputdecor" value="2" data-remove="false">
-	<select class="inputdecor" data-rollup="true" data-speed="150" data-unselected="true">
-		<option value="1">value 1</option>
+	<select class="inputdecor"
+		data-rollup="true"
+		data-unselected="true"
+		data-onchange="change"
+		data-class="myclass"
+		data-text="select from"
+		data-unselected-text="unselected"
+	>
+		<option value="1" selected>value 1</option>
 		<option value="2">value 2</option>
 		<option value="3">value 3</option>
 		<option value="4">value 4</option>
 		<option value="5">value 5</option>
 	</select>
-	<input type="file" name="file" class="inputdecor"
-		data-multiple="true"
-		data-files-count="3"
-		data-drop="true"
-		data-text="choose"
-		data-class="test"
+
+	<!--
+
+	ALSO YOU CAN USE
+
+	<ul class="inputdecor" data-attributes ... >
+		<li value="value 1" selected><a href="#">value 1</a></li>
+		...
+		<li value="value 5"><a href="#">value N</a></li>
+	</ul>
+
+	-->
+
+	<input type="file" name="file" class="inputdecor" multiple
+		data-text-button="choose"
+		data-text-unselected="no select"
+		data-class="myclass"
+		data-close="true"
+		data-size="true"
+		data-max-count="3"
 	>
 ```
 
