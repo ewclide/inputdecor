@@ -20,13 +20,19 @@
 			console.log(e);
 		}
 	</script>
-	<ul class="inputdecor" data-rollup="true" data-unselected="true" data-onchange="change" data-class="myclass" data-text="select from" data-unselected-text="unselected">
-		<li data-test="asd" value="value 1" selected><a href="#">value 1</a></li>
-		<li value="value 2"><a href="#">value 2</a></li>
+<!-- 	<ul class="inputdecor" data-rollup="true" data-onchange="change" data-class="myclass" data-text="select from" data-unselected-text="unselected">
+		<li data-test="asd" value="value 1"><a href="#">value 1</a></li>
+		<li value="value 2" selected><a href="#">value 2</a></li>
 		<li value="value 3"><a href="#">value 3</a></li>
 		<li value="value 4"><a href="#">value 4</a></li>
 		<li value="value 5"><a href="#">value 5</a></li>
-	</ul><br><br>
+	</ul><br><br> -->
+
+	<select class="inputdecor" data-rollup="true" data-onchange="change" data-class="myclass" data-text="select from" data-unselected-text="unselected">
+		<option value="value 1">value 1</option>
+		<option value="value 1">value 1</option>
+	</select><br><br>
+
 	<input type="file" name="file" class="inputdecor" multiple
 		data-text-button="choose"
 		data-text-unselected="no select"

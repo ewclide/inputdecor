@@ -154,6 +154,14 @@
 .inputdecor-select .button.active {
     border: 1px solid #2f2f2f;
 }
+.inputdecor-select.empty .marker:before,
+.inputdecor-select.empty .marker:after {
+    background: #bababa;
+}
+.inputdecor-select.empty .label,
+.inputdecor-select.empty .button {
+    border-color: #dddddd;
+}
 .inputdecor-checkbox .label {
     display: block;
     width: 100%;

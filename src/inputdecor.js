@@ -150,62 +150,92 @@
 		constructor($element)
 		{
 			var self = this;
-			this.$element = $element;
-			this.$elements = {};
+
+			this.$elements = {
+				main : $element
+			};
+
 			this.settings = {
+				type   : $element[0].tagName.toLowerCase(),
 				active : false,
 				name   : $element.attr("name"),
 				value  : $element.val(),
-				speed  : parseInt(this.$element.attr("data-speed")) || 250,
-				rollup : self.$element.attr("data-rollup") || false,
-				unselected : self.$element.attr("data-unselected") || false,
-				unselectedText : self.$element.attr("data-unselected-text") || "Не выбрано",
-				class : this.$element.attr("data-class") || "",
-				changeFunc : this.$element.attr("data-onchange") || function(){},
-				text  : (function()
-				{
-					var text;
-					if (self.$element.find("li.active").length) text = active.text();
-					else text = self.$element.attr("data-text") || "Выберите из списка";
-					return text;
-				})()
+				speed  : parseInt($element.attr("data-speed")) || 250,
+				rollup : $element.attr("data-rollup") || false,
+				class  : $element.attr("data-class") || "",
+				unselected    : $element.attr("data-unselected") || false,
+				selectedIndex : $element.attr("data-selected-index"),
+				unselectedText: $element.attr("data-unselected-text") || "not selected",
+				buttonText    : $element.attr("data-button-text") || "select from list",
+				changeFunc    : $element.attr("data-onchange") || function(){}
 			}
 
+			this.options = [];
+
 			this._build();
+		}
+
+		_getIndex()
+		{
+			if (this.settings.type == "select")
+				return this.$elements.main[0].selectedIndex;
+
+			else if (this.settings.type == "ul")
+				return this.$elements.main.find("li[selected]").index();
+		}
+
+		_createList(list)
+		{
+			if (this.settings.type == "select")
+			{
+
+				if (this.settings.unselected)
+					this.$elements.main.prepend('<option>' + this.settings.unselectedText + '</option>');
+
+				this._appendOptions(list, "option");
+			}
+			else if (this.settings.type == "ul")
+			{
+				if (this.settings.unselected)
+					this.$elements.main.prepend('<li>' + this.settings.unselectedText + '</li>');
+
+				this._appendOptions(list, "li");
+			}
+		}
+
+		_appendOptions(list, tag)
+		{
+			var self = this, options = this.$elements.main.find(tag);
+
+			if (options.length)
+				options.each(function(){
+
+					var current = $(this),
+						text = current.text(),
+						$element = DOC.create("li").text(text);
+
+					self.options.push({
+						$element : $element,
+						value : current.val() || current.attr("value"),
+						text : text
+					});
+
+					list.append($element);
+				});
 		}
 
 		_build()
 		{
 			var self = this,
 				$elements = this.$elements,
-				settings = this.settings,
-				list = "",
-				options;
+				settings = this.settings;
 
-			this.$element.hide();
+			$elements.main.hide();
 
-			/*-------add unselected--------*/
-			if (settings.unselected)
-			{
-				var element = this.$element[0];
-
-				if (element.tagName.toLowerCase() == "select")
-				{
-					this.$element.prepend('<option>' + settings.unselectedText + '</option>');
-					if (element.selectedIndex == 1) element.selectedIndex = 0;
-				}
-				else if (element.tagName.toLowerCase() == "ul")
-				{
-					this.$element.prepend('<li>' + settings.unselectedText + '</li>');
-				}	
-			}
-
-			/*-------prepare changeFunc--------*/
             settings.changeFunc = eval("(function(){ return " + settings.changeFunc + "})()");
 
-			/*-------create elements--------*/
 			$elements.select  = DOC.create("div", "inputdecor-select " + (settings.class ? settings.class : "" ));
-			$elements.button  = DOC.create("button", "button").text(settings.text);
+			$elements.button  = DOC.create("button", "button");
 			$elements.label   = DOC.create("span", "label");
 			$elements.marker  = DOC.create("span", "marker");
 			$elements.hidden  = DOC.create("input", { "type" : "hidden", "name" : settings.name }).val(settings.value);
@@ -220,47 +250,15 @@
 					"transform-origin" : "100% 0",
 					"transition" : settings.speed + "ms"
 				}
-			)
+			);
 
-			/*-------append elements--------*/
-			this.$element.before($elements.select);
-			$elements.select.append($elements.button);
-			$elements.select.append($elements.label);
-			$elements.label.append($elements.marker);
+			$elements.main.before($elements.select);
 			$elements.select.append($elements.hidden);
-			$elements.select.append($elements.wrapper);
-			$elements.wrapper.append($elements.list);
+			$elements.select.append($elements.button);
+			$elements.select.append($elements.label.append($elements.marker));
+			$elements.select.append($elements.wrapper.append($elements.list));
+			this._createList($elements.list);
 
-			/*-------create option list--------*/
-			options = this.$element.find("option");
-
-			if (options.length)
-			{
-				options.each(function(){
-					var option = $(this);
-					if (option.attr("selected"))
-					{
-						$elements.hidden.val(option.val());
-						$elements.button.text(option.text());
-						list += '<li selected >' + option.text() + '</li>';
-					}
-					else
-					{
-						list += '<li>' + option.text() + '</li>';
-					}
-				});
-
-				$elements.select.append(this.$element);
-			}
-			else
-			{
-				list = this.$element[0].innerHTML;
-				this.$element.remove();
-			}
-
-			$elements.list.append(list);
-
-			/*-------create rollup--------*/
 			if (settings.rollup)
 			{
 				$elements.rollup = DOC.create("span", "rollup");
@@ -270,48 +268,33 @@
 				});
 			}
 
-			/*-------add event listeners--------*/
-			$elements.button[0].onclick = function(e)
+			if (settings.buttonText)
+				$elements.button.text(settings.buttonText);
+
+			if (this.options.length <= 1)
 			{
+				$elements.select.addClass("empty");
+				this.choose(0);
+			}
+			else if (settings.selectedIndex) this.choose(settings.selectedIndex);
+			else this.choose(this._getIndex());
+
+			$elements.button[0].onclick = function(e){
 				self.toogle();
 			};
 
-			$elements.label[0].onclick = function(e)
-			{
+			$elements.label[0].onclick = function(e){
 				self.toogle();
 			};
 
 			$elements.list.click(function(e){
-
-				var target, value, text;
+				var target;
 
 				if (e.target.tagName != "LI") target = $(e.target).closest("li");
 				else target = $(e.target);
 
 				if (target.length)
-				{
-					value = target.attr("value");
-					text = target.text();
-
-					$elements.list.find("li").removeAttr("selected");
-
-					if (text == settings.unselectedText)
-					{
-						$elements.hidden.val("");
-						$elements.button.text(settings.text);
-					}
-					else
-					{
-						target.attr("selected", "");
-						$elements.hidden.val(value);
-						$elements.button.text(text);
-					}
-
-					self.close();
-					self.$element[0].selectedIndex = target.index();
-					self.$element.change();
-					settings.changeFunc(value);
-				}
+					self.choose(target.index());
 			});
 
 			document.body.addEventListener("click", function(e){
@@ -321,20 +304,56 @@
 			});
 		}
 
+		choose(index)
+		{
+			var target = this.options[index];
+
+			this.options.forEach(function(option){
+				option.$element.removeAttr("selected");
+			});
+
+			target.$element.attr("selected", "");
+
+			if (target.text == this.settings.unselectedText)
+			{
+				var text = this.settings.buttonText || this.settings.unselectedText;
+				this.$elements.hidden.val("");
+				this.$elements.button.text(text);
+			}
+			else
+			{
+				this.$elements.hidden.val(target.value);
+				this.$elements.button.text(target.text);
+			}
+			
+			this.$elements.main[0].selectedIndex = index;
+			this.$elements.main.change();
+
+			this.settings.changeFunc(target.value);
+
+			this.close();
+		}
+
 		open()
 		{
-			this.$elements.wrapper.css("transform", "scaleY(1)");
-			this.$elements.button.addClass("active");
-			this.$elements.label.addClass("active");
-			this.settings.active = true;
+			if (this.options.length > 1)
+			{
+				this.$elements.wrapper.css("transform", "scaleY(1)");
+				this.$elements.button.addClass("active");
+				this.$elements.label.addClass("active");
+				this.settings.active = true;
+			}
 		}
 
 		close()
 		{
-			this.$elements.wrapper.css("transform", "scaleY(0)");
-			this.$elements.button.removeClass("active");
-			this.$elements.label.removeClass("active");
-			this.settings.active = false;
+			if (this.options.length > 1)
+			{
+				this.$elements.wrapper.css("transform", "scaleY(0)");
+				this.$elements.button.removeClass("active");
+				this.$elements.label.removeClass("active");
+				this.settings.active = false;
+			}
 		}
 
 		toogle()
