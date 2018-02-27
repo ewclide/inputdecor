@@ -3,367 +3,125 @@
 .inputdecor-radio *,
 .inputdecor-file * {
     box-sizing: border-box;
+    outline: none;
 }
-
+.inputdecor-select *:focus {
+    outline: none;
+}
 .inputdecor-select .list li a {
     text-decoration: none;
-    color: #7d7d7d;
     display: inline-block;
     width: 100%;
-    -webkit-transition: 0.25s;
-    -o-transition: 0.25s;
-    transition: 0.25s;
 }
-
-.inputdecor-select .list li {
-    cursor: pointer;
-    font-size: 15px;
-    color: #7d7d7d;
-    padding: 5px 10px;
-    margin: 1px;
-    -webkit-transition: 0.25s;
-    -o-transition: 0.25s;
-    transition: 0.25s;
-}
-
-.inputdecor-select .list li:hover {
-    background: #73d4cc;
-    padding-left: 15px;
-    color: white;
-}
-
 .inputdecor-select {
     position: relative;
     display: inline-block;
-    max-width: 300px;
 }
 .inputdecor-select .list-wrapper {
+    background: white;
     z-index: 1;
 }
 .inputdecor-select .list {
     margin: 0;
     padding: 0;
-    border-top: none;
-    width: 100%;
     list-style: none;
-    font-family: arial;
-    border: 1px solid #2f2f2f;
-    background: white;
-    margin-top: 2px;
+    max-height: 250px;
+    overflow-y: auto;
 }
-.inputdecor-select .marker {
-    position: absolute;
-    height: 100%;
+.inputdecor-select .search {
+    position: relative;
+    display: inline-block;
+    flex-grow: 1;
+}
+.inputdecor-select .search input{
     width: 100%;
-    -webkit-transition: 0.25s;
-    -o-transition: 0.25s;
-    transition: 0.25s;
 }
-.inputdecor-select .marker:before,
-.inputdecor-select .marker:after {
-    content: "";
-    background: #505050;
-    width: 6px;
-    height: 1px;
-    right: 10px;
+.inputdecor-select .search .clear {
     position: absolute;
-    bottom: 0;
-    margin: auto;
+    right: 0;
+    top: 0;
+    height: 100%;
+    border: none;
+    cursor: pointer;
 }
-.inputdecor-select .marker:before {
-    top: -4px;
-    transform: rotate(-45deg);
+.inputdecor-select .list-wrapper .empty {
+    width: 100%;
+    display: inline-block;
 }
-.inputdecor-select .marker:after {
-    top: 4px;
-    transform: rotate(45deg);
+.inputdecor-select .list-wrapper .search {
+    width: 100%;
 }
 .inputdecor-select .label {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    margin: auto;
-    height: 100%;
-    width: 25px;
-    border-left: 1px solid #c2c2c2;
+    border: none;
     cursor: pointer;
-    -webkit-transition: 0.25s;
-    -o-transition: 0.25s;
-    transition: 0.25s;
+    z-index: 1;
 }
-.inputdecor-select .label.active {
-    border-left: 1px solid #2f2f2f;
-}
-.inputdecor-select .active .marker {
-    transform: rotate(-90deg);
-}
-
-.inputdecor-select .button:focus {
-    outline: none;
-}
-.inputdecor-select .rollup:before {
-    content: "";
-    position: absolute;
-    right: 0;
-    left: 0;
-    margin: 4px auto;
-    width: 0;
-    height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-bottom: 5px solid #2f2f2f;
-    -webkit-transition: 0.25s;
-    -o-transition: 0.25s;
-    transition: 0.25s;
+.inputdecor-select .marker {
+    display: block;
 }
 .inputdecor-select .rollup {
     display: block;
-    height: 15px;
-    text-align: center;
     width: 100%;
-    top: 0;
-    position: relative;
+    height: 10px;
     cursor: pointer;
-    border-top: 1px solid #2f2f2f;
-    -webkit-transition: 0.25s;
-    -o-transition: 0.25s;
-    transition: 0.25s;
 }
-.inputdecor-select .rollup:hover {
-    background: #2f2f2f;
+.inputdecor-select .button-wrapper {
+    position: relative;
+    border: 1px solid black;
+    display: flex;
 }
-.inputdecor-select .rollup:hover:before {
-    border-bottom: 5px solid white;
+.inputdecor-select .button-wrapper .search input {
+    border: none;
+    height: 100%;
 }
 .inputdecor-select .button {
-    background: none;
-    border: 1px solid #c2c2c2;
-    width: 220px;
-    display: inline-block;
-    vertical-align: middle;
     position: relative;
+    border: none;
     cursor: pointer;
-    padding: 8px 30px;
-    color: #757575;
-    font-size: 15px;
-    -webkit-transition: 0.25s;
-    -o-transition: 0.25s;
-    transition: 0.25s;
-}
-.inputdecor-select .button.active {
-    border: 1px solid #2f2f2f;
-}
-.inputdecor-select.empty .marker:before,
-.inputdecor-select.empty .marker:after {
-    background: #bababa;
+    background: none;
+    min-width: 200px;
+    text-align: left;
+    overflow: hidden;
+    flex-grow: 1;
 }
 .inputdecor-select.empty .label,
 .inputdecor-select.empty .button {
     border-color: #dddddd;
 }
-.inputdecor-checkbox .label {
-    display: block;
-    width: 100%;
-    height: 100%;
-    position: relative;
-    opacity: 0;
-    transform: translateY(-5px) scale(0.5);
-    -webkit-transition: 0.25s;
-    -o-transition: 0.25s;
-    transition: 0.25s;
-}
-.inputdecor-checkbox .active .label {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-}
-.inputdecor-checkbox .label:after,
-.inputdecor-checkbox .label:before
+
+.inputdecor-radio,
+.inputdecor-checkbox
 {
-    content: "";
-    background: #2f2f2f;
-    width: 7px;
-    height: 3px;
-    position: absolute;
-}
-.inputdecor-checkbox .label:after
-{
-    width: 7px;
-    height: 3px;
-    top: 9px;
-    left: 2px;
-    transform: rotate(45deg);
-}
-
-.inputdecor-checkbox .label:before {
-    width: 9px;
-    height: 3px;
-    top: 7px;
-    left: 6px;
-    transform: rotate(-45deg);
-}
-
-.inputdecor-checkbox .button.active {
-    border: 2px solid #2f2f2f;
-}
-
-.inputdecor-checkbox .button {
-    width: 20px;
-    height: 20px;
     display: inline-block;
-    vertical-align: middle;
-    border: 2px solid #c2c2c2;
+}
+
+.inputdecor-radio .button,
+.inputdecor-checkbox .button
+{
+    min-height: 15px;
+    min-width: 15px;
     position: relative;
     cursor: pointer;
-    -webkit-transition: 0.25s;
-    -o-transition: 0.25s;
-    transition: 0.25s;
-}
-
-.inputdecor-checkbox .input[type='checkbox'],
-.inputdecor-checkbox .input[type='radio']
-{
-    display: none;
-}
-
-.inputdecor-radio {
-    display: inline-block;
-}
-.inputdecor-radio .label {
-    display: block;
-    width: 100%;
-    height: 100%;
-    position: relative;
-    opacity: 0;
-    transform: scale(0.5);
-    -webkit-transition: 0.25s;
-    -o-transition: 0.25s;
-    transition: 0.25s;
-}
-.inputdecor-radio .active .label {
-    opacity: 1;
-    transform: scale(1);
-}
-.inputdecor-radio .label:before {
-    content: "";
-    background: #2f2f2f;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    display: block;
-    position: absolute;
-    top: 3px;
-    left: 3px;
-}
-.inputdecor-radio .button.active {
-    border: 2px solid #2f2f2f;
 }
 .inputdecor-radio .button {
-    border: 2px solid #c2c2c2;
-    width: 20px;
-    height: 20px;
     border-radius: 50%;
-    position: relative;
-    cursor: pointer;
-    -webkit-transition: 0.25s;
-    -o-transition: 0.25s;
-    transition: 0.25s;
 }
-.inputdecor-file .files-list:before {
-    content: "";
-    background: #bbbbbb;
-    width: 1px;
-    height: 15px;
-    position: absolute;
-    left: -15px;
-    top: 3px;
-}
-.inputdecor-file .files-list {
-    position: relative;
+
+.inputdecor-file {
     display: inline-block;
-    margin-left: 30px;
-    font-size: 14px;
-    color: #808080;
 }
-.inputdecor-file .button:before {
-    content: "";
-    background: url(../img/clip.svg) no-repeat 100%;
-    background-size: 100%;
-    height: 24px;
-    width: 24px;
-    position: absolute;
-    bottom: 0;
-    top: 0;
-    left: -35px;
-    margin: auto;
-}
-.inputdecor-file .button:after {
-    content: "";
-    background: #5b4b56;
-    width: 100%;
-    height: 1px;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-}
-.inputdecor-file .button:hover {
-    color: #000000;
-}
-.inputdecor-file .button {
-    color: #5b4b56;
-    border: none;
-    background: none;
-    position: relative;
-    padding: 0;
-    padding-bottom: 2px;
-    font-size: 14px;
-    margin-left: 35px;
-    display: inline-block;
-    cursor: pointer;
-    transition: 0.25s;
-    outline: none;
-}
-.inputdecor-file .close:after {
-    transform: rotate(-45deg);
-}
-.inputdecor-file .close:before {
-    transform: rotate(45deg);
-}
-.inputdecor-file .close:before,
-.inputdecor-file .close:after {
-    content: "";
-    background: darkgrey;
-    width: 10px;
-    height: 2px;
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    margin: auto;
-    transition: 0.25s;
-}
-.inputdecor-file .close:hover:before,
-.inputdecor-file .close:hover:after {
-    background: black;
-}
+.inputdecor-file .button,
 .inputdecor-file .close {
-    width: 10px;
-    height: 10px;
     display: inline-block;
-    position: relative;
     cursor: pointer;
+    position: relative;
 }
-.inputdecor-file .file:nth-last-child(2):after {
-    content: "";
-}
-.inputdecor-file .file:after {
-    content: ",";
-}
-.inputdecor-file .file span {
-    margin-left: 5px;
-}
-.inputdecor-file .file {
+.inputdecor-file .files-list,
+.inputdecor-file .close,
+.inputdecor-file .file,
+.inputdecor-file .size
+{
     display: inline-block;
-    margin-right: 10px;
+    vertical-align: middle;
+    margin-left: 10px;
 }

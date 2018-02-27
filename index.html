@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>InputDecor</title>
+
+	<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700" rel="stylesheet">
+	<script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+	
+	<link rel="stylesheet" href="src/inputdecor.css">
+	<link rel="stylesheet" href="src/inputdecor.theme.css">
+	<script src="src/inputdecor.dev.js"></script>
+	<!-- <script src="src/inputdecor.min.js"></script> -->
+
+	<script src="js/common.js"></script>
+</head>
+<body>
+
+	<input data-inputdecor type="checkbox" name="checkbox" value="1">
+	<br><br>
+
+	<input data-inputdecor type="radio" name="radio" checked value="1">
+	<input data-inputdecor type="radio" name="radio" value="2" data-remove="true">
+	<input data-inputdecor type="radio" name="radio" value="3">
+	<input data-inputdecor type="radio" name="radio" value="4">
+	<input data-inputdecor type="radio" name="radio" value="5">
+	<br><br>
+
+	<input type="file" name="file" multiple
+		data-inputdecor
+		data-class="myclass"
+		data-close="true"
+		data-size="true"
+		data-max-count="3"
+	>
+	<br>
+
+	<ul data-inputdecor name="list" data-rollup="true" data-search="true" data-search-inbutton="false" data-on-choose="onChoose">
+		<li value="value 1"><a href="#">value 1</a></li>
+		<li value="value 2" data-group="value 2" selected>
+			<ul>
+				<li value="value 2.1"><a href="#">value s.1</a></li>
+				<li value="value 2.2"><a href="#">value s.2</a></li>
+				<li value="value 2.3"><a href="#">value s.3</a></li>
+			</ul>
+		</li>
+		<li value="value 3"><a href="#">value 3</a></li>
+		<li value="value 4"><a href="#">value 4</a></li>
+		<li value="value 5"><a href="#">value 5</a></li>
+	</ul>
+	<br><br>
+
+<!-- 	<select data-inputdecor data-rollup="true" data-search="true" data-search-inbutton="true" data-on-choose="callback" >
+		<option value="value 1">value 1</option>
+		<option value="value 2" selected>value 2</option>
+		<option value="value 3">value 3</option>
+		<option value="value 4">value 4</option>
+		<option value="value 5">value 5</option>
+	</select>
+	<br><br> -->
+</body>
+</html>
