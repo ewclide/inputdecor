@@ -12,7 +12,7 @@ export class List
 		this.onChoose;
 		this.$element;
 		this.$allElements;
-		this.selected = 0;
+		this.selected = settings.selected || 0;
 		
 		this._create();
 	}
@@ -57,6 +57,7 @@ export class List
 				unselected = '<li class="unselected">' + unselected + '</li>';
 
 			this.$source.prepend(unselected);
+			this.selected++;
 		}
 
 		this.options = this._buildOptions();

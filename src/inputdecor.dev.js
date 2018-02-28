@@ -375,10 +375,11 @@ var _search = __webpack_require__(8);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Select = exports.Select = function () {
-	function Select($source, type, sett) {
+	function Select($source, type, settings) {
 		_classCallCheck(this, Select);
 
-		var self = this;
+		var self = this,
+		    search = settings.search;
 
 		this.$source = $source.hide();
 
@@ -386,29 +387,29 @@ var Select = exports.Select = function () {
 			type: type,
 			active: false,
 			name: $source.attr("name"),
-			speed: sett.speed || parseInt($source.attr("data-speed")) || 250,
-			rollup: sett.rollup || (0, _func.checkBoolean)($source.attr("data-rollup"), false),
-			className: sett.className || $source.attr("data-class") || "",
-			onChoose: sett.onChoose || $source.attr("data-on-choose"),
-			onReady: sett.onReady || $source.attr("data-on-ready"),
-			selected: sett.selected || $source.attr("data-selected") || 0,
-			unselected: sett.unselected || (0, _func.checkBoolean)($source.attr("data-unselected"), false),
-			textButton: sett.textButton || $source.attr("data-text-button") || "Select value",
-			textUnselected: sett.textUnselected || $source.attr("data-text-unselected") || "-- not selected --"
+			speed: settings.speed || parseInt($source.attr("data-speed")) || 250,
+			rollup: settings.rollup || (0, _func.checkBoolean)($source.attr("data-rollup"), false),
+			className: settings.className || $source.attr("data-class") || "",
+			onChoose: settings.onChoose || $source.attr("data-on-choose"),
+			onReady: settings.onReady || $source.attr("data-on-ready"),
+			selected: settings.selected || parseInt($source.attr("data-selected")) || 0,
+			unselected: settings.unselected || (0, _func.checkBoolean)($source.attr("data-unselected"), false),
+			textButton: settings.textButton || $source.attr("data-text-button") || "Select value",
+			textUnselected: settings.textUnselected || $source.attr("data-text-unselected") || "-- not selected --"
 		};
 
-		if (!sett.search) sett.search = {};
-
-		if (sett.search || (0, _func.checkBoolean)($source.attr("data-search"), false)) this.settings.search = {
-			textEmpty: sett.search.textEmpty || $source.attr("data-search-empty") || "-- not found --",
-			inButton: sett.search.inButton || (0, _func.checkBoolean)($source.attr("data-search-inbutton"), false),
-			caseSense: sett.search.caseSense || (0, _func.checkBoolean)($source.attr("data-search-case"), false),
-			fullWord: sett.search.fullWord || (0, _func.checkBoolean)($source.attr("data-search-full"), false),
-			beginWord: sett.search.beginWord || (0, _func.checkBoolean)($source.attr("data-search-begin"), false)
+		if (search || (0, _func.checkBoolean)($source.attr("data-search"), false)) this.settings.search = {
+			textEmpty: search && search.textEmpty || $source.attr("data-search-empty") || "-- not found --",
+			inButton: search && search.inButton || (0, _func.checkBoolean)($source.attr("data-search-inbutton"), false),
+			caseSense: search && search.caseSense || (0, _func.checkBoolean)($source.attr("data-search-case"), false),
+			wholeWord: search && search.wholeWord || (0, _func.checkBoolean)($source.attr("data-search-whole"), false),
+			beginWord: search && search.beginWord || (0, _func.checkBoolean)($source.attr("data-search-begin"), false)
 		};
 
 		this.value = $source.val();
 		this.text = this.settings.textButton;
+
+		console.log(this);
 
 		this._create();
 	}
@@ -445,6 +446,7 @@ var Select = exports.Select = function () {
 			// create list
 			this.list = new _list.List(this.$source, {
 				type: settings.type,
+				selected: settings.selected,
 				unselected: settings.unselected,
 				textUnselected: settings.textUnselected
 			});
@@ -501,7 +503,7 @@ var Select = exports.Select = function () {
 			});
 
 			// first select
-			this.list.choose(this.selected || this.list.selected);
+			this.list.choose(this.list.selected);
 
 			if (self.settings.onReady) self.settings.onReady(this);
 		}
@@ -595,7 +597,7 @@ var List = exports.List = function () {
 		this.onChoose;
 		this.$element;
 		this.$allElements;
-		this.selected = 0;
+		this.selected = settings.selected || 0;
 
 		this._create();
 	}
@@ -635,6 +637,7 @@ var List = exports.List = function () {
 				if (this.settings.type == "select") unselected = '<option class="unselected">' + unselected + '</option>';else if (this.settings.type == "ul") unselected = '<li class="unselected">' + unselected + '</li>';
 
 				this.$source.prepend(unselected);
+				this.selected++;
 			}
 
 			this.options = this._buildOptions();
@@ -860,7 +863,7 @@ var Search = exports.Search = function () {
 				value_2 = value_2.toUpperCase();
 			}
 
-			if (this.settings.fullWord) return value_1 == value_2 ? true : false;else {
+			if (this.settings.wholeWord) return value_1 == value_2 ? true : false;else {
 				var idx = value_1.indexOf(value_2);
 
 				if (this.settings.beginWord) return idx != -1 && (idx == 0 || value_1[idx - 1] == " ") ? true : false;else return idx != -1 ? true : false;

@@ -105,7 +105,7 @@ export class Search
 			value_2 = value_2.toUpperCase();
 		}
 
-		if (this.settings.fullWord)
+		if (this.settings.wholeWord)
 			return value_1 == value_2  ? true : false;
 
 		else

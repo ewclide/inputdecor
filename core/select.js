@@ -4,9 +4,10 @@ import { Search } from './search';
 
 export class Select
 {
-	constructor($source, type, sett)
+	constructor($source, type, settings)
 	{
-		var self = this;
+		var self = this,
+			search = settings.search;
 
 		this.$source = $source.hide()
 
@@ -14,30 +15,30 @@ export class Select
 			type       : type,
 			active     : false,
 			name       : $source.attr("name"),
-			speed      : sett.speed      || parseInt($source.attr("data-speed")) || 250,
-			rollup     : sett.rollup     || checkBoolean($source.attr("data-rollup"), false),
-			className  : sett.className  || $source.attr("data-class") || "",
-			onChoose   : sett.onChoose   || $source.attr("data-on-choose"),
-			onReady    : sett.onReady    || $source.attr("data-on-ready"),
-			selected   : sett.selected   || $source.attr("data-selected") || 0,
-			unselected : sett.unselected || checkBoolean($source.attr("data-unselected"), false),
-			textButton : sett.textButton || $source.attr("data-text-button") || "Select value",
-			textUnselected : sett.textUnselected || $source.attr("data-text-unselected") || "-- not selected --",
+			speed      : settings.speed      || parseInt($source.attr("data-speed")) || 250,
+			rollup     : settings.rollup     || checkBoolean($source.attr("data-rollup"), false),
+			className  : settings.className  || $source.attr("data-class") || "",
+			onChoose   : settings.onChoose   || $source.attr("data-on-choose"),
+			onReady    : settings.onReady    || $source.attr("data-on-ready"),
+			selected   : settings.selected   || parseInt($source.attr("data-selected")) || 0,
+			unselected : settings.unselected || checkBoolean($source.attr("data-unselected"), false),
+			textButton : settings.textButton || $source.attr("data-text-button") || "Select value",
+			textUnselected : settings.textUnselected || $source.attr("data-text-unselected") || "-- not selected --",
 		}
 
-		if (!sett.search) sett.search = {};
-
-		if (sett.search || checkBoolean($source.attr("data-search"), false))
+		if (search || checkBoolean($source.attr("data-search"), false))
 			this.settings.search = {
-				textEmpty : sett.search.textEmpty || $source.attr("data-search-empty") || "-- not found --",
-				inButton  : sett.search.inButton  || checkBoolean($source.attr("data-search-inbutton"), false),
-				caseSense : sett.search.caseSense || checkBoolean($source.attr("data-search-case"), false),
-				fullWord  : sett.search.fullWord  || checkBoolean($source.attr("data-search-full"), false),
-				beginWord : sett.search.beginWord || checkBoolean($source.attr("data-search-begin"), false)
+				textEmpty : search && search.textEmpty || $source.attr("data-search-empty") || "-- not found --",
+				inButton  : search && search.inButton  || checkBoolean($source.attr("data-search-inbutton"), false),
+				caseSense : search && search.caseSense || checkBoolean($source.attr("data-search-case"), false),
+				wholeWord : search && search.wholeWord || checkBoolean($source.attr("data-search-whole"), false),
+				beginWord : search && search.beginWord || checkBoolean($source.attr("data-search-begin"), false)
 			}
 
 		this.value = $source.val();
 		this.text = this.settings.textButton;
+
+		console.log(this)
 
 		this._create();
 	}
@@ -79,6 +80,7 @@ export class Select
         	this.$source,
 	        {
 	        	type : settings.type,
+	        	selected : settings.selected,
 	        	unselected : settings.unselected,
 	        	textUnselected : settings.textUnselected
 	        }
@@ -151,7 +153,7 @@ export class Select
 		});
 
 		// first select
-		this.list.choose(this.selected || this.list.selected);
+		this.list.choose(this.list.selected);
 
 		if (self.settings.onReady)
 			self.settings.onReady(this);

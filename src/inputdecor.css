@@ -19,7 +19,7 @@
 }
 .inputdecor-select .list-wrapper {
     background: white;
-    z-index: 1;
+    z-index: 2;
 }
 .inputdecor-select .list {
     margin: 0;
