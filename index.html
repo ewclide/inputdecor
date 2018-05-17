@@ -6,13 +6,8 @@
 
 	<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700" rel="stylesheet">
 	<script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-	
-	<link rel="stylesheet" href="src/inputdecor.css">
-	<link rel="stylesheet" href="src/inputdecor.theme.css">
-	<script src="src/inputdecor.dev.js"></script>
-	<!-- <script src="src/inputdecor.min.js"></script> -->
-
-	<script src="js/common.js"></script>
+	<link rel="stylesheet" href="result/inputdecor.css">
+	<link rel="stylesheet" href="result/inputdecor.theme.css">
 </head>
 <body>
 
@@ -29,13 +24,15 @@
 	<input type="file" name="file" multiple
 		data-inputdecor
 		data-class="myclass"
-		data-close="true"
-		data-size="true"
+		data-clear="false"
+		data-size
+		data-file-list
 		data-max-count="3"
+		data-types="gif, jpg, png"
 	>
 	<br>
 
-	<ul data-inputdecor name="list" data-unselected="true" data-selected="4">
+	<ul data-inputdecor name="list" data-search data-unselected="false" data-select-index="4">
 		<li value="value 1"><a href="#">value 1</a></li>
 		<li value="value 2" data-group="value 2">
 			<ul>
@@ -50,7 +47,13 @@
 	</ul>
 	<br><br>
 
-	<select data-inputdecor data-rollup="true" data-search="true" data-search-inbutton="true" data-on-choose="callback" >
+	<select
+		id="target"
+		class="select"
+		data-rollup
+		data-search
+		data-on-choose="console.log(e)"
+	>
 		<option value="value 1">value 1</option>
 		<option value="value 2" selected>value 2</option>
 		<option value="value 3">value 3</option>
@@ -58,5 +61,8 @@
 		<option value="value 5">value 5</option>
 	</select>
 	<br><br>
+	<script src="result/inputdecor.dev.js"></script>
+	<!-- <script src="result/inputdecor.min.js"></script> -->
+	<script src="js/common.js"></script>
 </body>
 </html>

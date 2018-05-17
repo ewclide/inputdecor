@@ -1,4 +1,4 @@
-var path = require('path').resolve(__dirname, 'src'),
+var path = require('path').resolve(__dirname, 'result'),
 	UglifyJsPlugin = require('uglifyjs-webpack-plugin'),
 	output = "inputdecor",
 	babel = {
@@ -25,4 +25,4 @@ const min = {
 	module: { rules: [ babel ] }
 }
 
-module.exports = dev;
+module.exports = min;

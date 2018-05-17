@@ -1,4 +1,4 @@
-var DOC = {
+export var DOC = {
 	create : function(tag, attr, css)
 	{
 		var $element = $(document.createElement(tag));
@@ -9,7 +9,20 @@ var DOC = {
 	}
 }
 
-function checkBoolean(value, def)
+export function getOption(attr, $element, setting, def, prefix = "data-")
+{
+	var value = $element.attr(prefix + attr);
+
+	if (value == undefined)
+		value = setting !== undefined ? setting : def;
+
+	if (value === "") value = true;
+	else if (value === "false") value = false;
+
+	return value;
+}
+
+export function checkBoolean(value, def)
 {
 	if (typeof value == "string")
 		if (value == "true") value = true;
@@ -21,13 +34,13 @@ function checkBoolean(value, def)
 	return value;
 }
 
-function wrapCallBack(callback)
+export function wrapCallBack(callback)
 {
 	if (typeof callback == "string")
-		return eval("(function(){ return " + callback + "})()");
+		return new Function("e", callback);
 
 	else if (typeof callback == "function")
 		return callback;
-}
 
-export { DOC, checkBoolean, wrapCallBack }
+	else return function(){}
+}

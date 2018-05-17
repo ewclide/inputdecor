@@ -1,12 +1,35 @@
 import { Decorator } from './decorator';
+import { setAPI } from './api';
+
+var output = {},
+	methods = [
+		"find",
+		"choose",
+		"addOption",
+		"count",
+		"open",
+		"close",
+		"toogle",
+		"activate",
+		"deactivate",
+		"clear",
+		"addTypes",
+		"setup"
+	];
+
+setAPI(output, methods);
+
+$.inputDecor = function(query)
+{
+	output.$elements = $(query);
+	return output;
+}
 
 $.fn.inputDecor = function(type, settings)
 {
 	this.each(function(){
-		this.decorator = new Decorator($(this), type, settings);
+		this._decorator = new Decorator($(this), type, settings);
 	});
 }
 
-$(document).ready(function(){
-	$('[data-inputdecor]').inputDecor();
-});
+$('[data-inputdecor]').inputDecor();

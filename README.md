@@ -122,7 +122,7 @@ JavaScript:
 
 ```js
 
-$(".decorate").inputDecor("select", {
+$(".some").inputDecor("select", {
 	unselected : true,
 	rollup : true,
 	search :
@@ -130,25 +130,29 @@ $(".decorate").inputDecor("select", {
 		inButton  : true,
 		beginWord : true
 	},
-	onReady : function(list)
+	onChoose : function(e)
 	{
-		list.addOption({
-			html   : "<a href='#'>option 1</a>",
-			childs : [
-				{
-					html   : "<a href='#'>option 1.1</a>",
-					text   : "option 1.1",
-					value  : 1.1
-				},
-				{
-					html   : "<a href='#'>option 1.2</a>",
-					text   : "option 1.2",
-					value  : 1.2
-				}
-			]
-		})
+		console.log(e);
+	}
+});
+
+var target = $.inputDecor('#target'),
+	count = target.count();
+
+target.addOption({
+	html   : "<a href='#'>option " + count + "</a>",
+	childs : [
+	{
+		html   : "<a href='#'>option " + count +".1</a>",
+		text   : "test_1",
+		value  : 1,
 	},
-	onChoose : onChoose
+	{
+		html   : "<a href='#'>option " + count +".2</a>",
+		text   : "test_2",
+		value  : 2,
+	}
+	]
 });
 
 ```

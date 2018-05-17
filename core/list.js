@@ -9,7 +9,7 @@ export class List
 
 		this.length = 0;
 		this.options = [];
-		this.onChoose;
+		this.onChoose = function(){};
 		this.$element;
 		this.$allElements;
 		this.selected = settings.selected || 0;
@@ -48,7 +48,7 @@ export class List
 
 		if (this.settings.unselected)
 		{
-			var unselected = this.settings.textUnselected;
+			var unselected = this.settings.unselected;
 
 			if (this.settings.type == "select")
 				unselected = '<option class="unselected">' + unselected + '</option>';
@@ -78,7 +78,7 @@ export class List
 		var data = {
 			value : target.value,
 			text  : target.text,
-			unselected : target.text == this.settings.textUnselected ? true : false
+			unselected : target.text === this.settings.unselected ? true : false
 		}
 
 		this.$allElements.removeAttr("data-selected");

@@ -1,4 +1,4 @@
-import { checkBoolean, DOC } from './func';
+import { DOC } from './func';
 
 export class Search
 {
@@ -15,29 +15,39 @@ export class Search
 		return this.$elements.input.val();
 	}
 
-	setValue(str)
+	setValue(str, blur = true)
 	{
-		this.$elements.input.val(str).blur();
-		this.$elements.clear.hide();
+		this.$elements.input.val(str);
+
+		str ? this.$elements.clear.show() : this.$elements.clear.hide();
+
+		if (blur)
+		{
+			this.$elements.clear.hide();
+			this.$elements.input.blur();
+		}
 	}
 
 	clear(focus)
 	{
-		if (focus) this.$elements.input.focus().val("");
-		else this.$elements.input.val("").blur();
+		focus
+		? this.$elements.input.focus().val("")
+		: this.$elements.input.val("").blur();
 
 		this.find("");
 	}
 
 	find(text)
 	{
-		var count = this._find(this.options, text);
+		var found = this._find(this.options, text);
 
-		if (this.$elements.input.val()) this.$elements.clear.show();
-		else this.$elements.clear.hide();
+		!found.length
+		? this.$elements.empty.show()
+		: this.$elements.empty.hide();
 
-		if (!count) this.$elements.empty.show();
-		else this.$elements.empty.hide();
+		this.setValue(text, false);
+
+		return found;
 	}
 
 	_create()
@@ -69,17 +79,15 @@ export class Search
 
 	_find(options, text)
 	{
-		var self = this,
-			count = 0;
+		var self = this, result = [];
 
 		options.forEach(function(option){
 
 			var inside;
 
-			if (option.childs)
-				inside = self._find(option.childs, text);
+			if (option.childs) inside = self._find(option.childs, text);
 
-			if (inside) count += inside;
+			if (inside) result.concat(inside);
 
 			if (!self._compare(option.text, text))
 			{
@@ -87,12 +95,12 @@ export class Search
 			}
 			else
 			{
-				count++;
+				result.push(option.index);
 				option.$element.show();
 			}
 		});
 
-		return count;
+		return result;
 	}
 
 	_compare(value_1, value_2)

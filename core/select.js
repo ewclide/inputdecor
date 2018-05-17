@@ -1,4 +1,4 @@
-import { DOC, checkBoolean, wrapCallBack } from './func';
+import { DOC, getOption, wrapCallBack } from './func';
 import { List } from './list';
 import { Search } from './search';
 
@@ -6,39 +6,41 @@ export class Select
 {
 	constructor($source, type, settings)
 	{
-		var self = this,
-			search = settings.search;
-
-		this.$source = $source.hide()
+		this.$source = $source.hide();
 
 		this.settings = {
-			type       : type,
-			active     : false,
-			name       : $source.attr("name"),
-			speed      : settings.speed      || parseInt($source.attr("data-speed")) || 250,
-			rollup     : settings.rollup     || checkBoolean($source.attr("data-rollup"), false),
-			className  : settings.className  || $source.attr("data-class") || "",
-			onChoose   : settings.onChoose   || $source.attr("data-on-choose"),
-			onReady    : settings.onReady    || $source.attr("data-on-ready"),
-			selected   : settings.selected   || parseInt($source.attr("data-selected")) || 0,
-			unselected : settings.unselected || checkBoolean($source.attr("data-unselected"), false),
-			textButton : settings.textButton || $source.attr("data-text-button") || "Select value",
-			textUnselected : settings.textUnselected || $source.attr("data-text-unselected") || "-- not selected --",
+			type        : type,
+			active      : false,
+			name        : $source.attr("name"),
+			speed       : getOption("speed", $source, settings.speed, 250),
+			rollup      : getOption("rollup", $source, settings.rollup, false),
+			className   : getOption("class", $source, settings.className, " "),
+			onChoose    : getOption("on-choose", $source, settings.onChoose, ""),
+			onReady     : getOption("on-ready", $source, settings.onReady, ""),
+			selectIndex : getOption("select-index", $source, settings.selectIndex, 0),
+			unselected  : getOption("unselected", $source, settings.unselected, "-- not selected --"),
+			placeholder : getOption("placeholder", $source, settings.placeholder, "Select value")
 		}
 
-		if (search || checkBoolean($source.attr("data-search"), false))
+		if (this.settings.unselected === true)
+			this.settings.unselected = "-- not selected --";
+
+		var search = getOption("search", $source, settings.search, false);
+
+		if (search)
+		{
+			if (search === true) search = {}
 			this.settings.search = {
-				textEmpty : search && search.textEmpty || $source.attr("data-search-empty") || "-- not found --",
-				inButton  : search && search.inButton  || checkBoolean($source.attr("data-search-inbutton"), false),
-				caseSense : search && search.caseSense || checkBoolean($source.attr("data-search-case"), false),
-				wholeWord : search && search.wholeWord || checkBoolean($source.attr("data-search-whole"), false),
-				beginWord : search && search.beginWord || checkBoolean($source.attr("data-search-begin"), false)
+				textEmpty : getOption("empty", $source, search.textEmpty, "-- not found --", "data-search-"),
+				inButton  : getOption("inbutton", $source, search.inButton, false, "data-search-"),
+				caseSense : getOption("case", $source, search.caseSense, false, "data-search-"),
+				wholeWord : getOption("whole", $source, search.wholeWord, false, "data-search-"),
+				beginWord : getOption("begin", $source, search.beginWord, false, "data-search-")
 			}
+		}
 
 		this.value = $source.val();
-		this.text = this.settings.textButton;
-
-		console.log(this)
+		this.text = this.settings.placeholder;
 
 		this._create();
 	}
@@ -57,7 +59,7 @@ export class Select
         this.$elements = {
         	main       : DOC.create("div", "inputdecor-select " + (settings.className ? settings.className : "" )),
 	        buttonCont : DOC.create("div", "button-wrapper"),
-	        button     : DOC.create("button", "button").text(settings.textButton),
+	        button     : DOC.create("button", "button").text(settings.placeholder),
 	        label      : DOC.create("button", "label"),
 	        hidden     : DOC.create("input", { "type" : "hidden", "name" : settings.name }).val(this.value),
 	       	listCont   : DOC.create(
@@ -81,8 +83,7 @@ export class Select
 	        {
 	        	type : settings.type,
 	        	selected : settings.selected,
-	        	unselected : settings.unselected,
-	        	textUnselected : settings.textUnselected
+	        	unselected : settings.unselected
 	        }
 	    );
 
@@ -137,6 +138,14 @@ export class Select
 		if (this.search && settings.search.inButton)
 			this.search.$elements.input.click(toogle);
 
+		document.body.addEventListener("click", function(e){
+			var parent = $(e.target).closest(".inputdecor-select");
+			if (!parent.length) self.close();
+		});
+
+		// first select
+		this.list.choose(this.list.selected);
+
 		this.list.onChoose = function(e)
 		{
 			self._update(e);
@@ -147,16 +156,13 @@ export class Select
 			self.close();
 		};
 
-		document.body.addEventListener("click", function(e){
-			var parent = $(e.target).closest(".inputdecor-select");
-			if (!parent.length) self.close();
-		});
-
-		// first select
-		this.list.choose(this.list.selected);
-
 		if (self.settings.onReady)
 			self.settings.onReady(this);
+	}
+
+	find(value)
+	{
+		this.search.find(value);
 	}
 
 	choose(index)
@@ -173,8 +179,7 @@ export class Select
 
 	_update(data)
 	{
-		if (data.unselected) this.text = this.settings.textButton;
-		else this.text = data.text;
+		this.text = data.unselected ? this.settings.placeholder : data.text;
 
 		this.value = data.value;
 
@@ -209,17 +214,20 @@ export class Select
 
 			if (this.search)
 			{
-				if (this.settings.search.inButton)
-					this.search.setValue(this.text);
-
-				else this.search.clear();
+				this.settings.search.inButton
+				? this.search.setValue(this.text)
+				: this.search.clear();
 			}
 		}
 	}
 
+	count()
+	{
+		return this.list.length;
+	}
+
 	toogle()
 	{
-		if (this.settings.active) this.close();
-		else this.open();
+		this.settings.active ? this.close() : this.open();
 	}	
 }

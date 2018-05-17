@@ -76,7 +76,10 @@ Object.defineProperty(exports, "__esModule", {
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-var DOC = {
+exports.getOption = getOption;
+exports.checkBoolean = checkBoolean;
+exports.wrapCallBack = wrapCallBack;
+var DOC = exports.DOC = {
 	create: function create(tag, attr, css) {
 		var $element = $(document.createElement(tag));
 		if (typeof attr == "string") $element.addClass(attr);else if ((typeof attr === "undefined" ? "undefined" : _typeof(attr)) == "object") $element.attr(attr);
@@ -84,6 +87,18 @@ var DOC = {
 		return $element;
 	}
 };
+
+function getOption(attr, $element, setting, def) {
+	var prefix = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : "data-";
+
+	var value = $element.attr(prefix + attr);
+
+	if (value == undefined) value = setting !== undefined ? setting : def;
+
+	if (value === "") value = true;else if (value === "false") value = false;
+
+	return value;
+}
 
 function checkBoolean(value, def) {
 	if (typeof value == "string") {
@@ -93,12 +108,8 @@ function checkBoolean(value, def) {
 }
 
 function wrapCallBack(callback) {
-	if (typeof callback == "string") return eval("(function(){ return " + callback + "})()");else if (typeof callback == "function") return callback;
+	if (typeof callback == "string") return new Function("e", callback);else if (typeof callback == "function") return callback;else return function () {};
 }
-
-exports.DOC = DOC;
-exports.checkBoolean = checkBoolean;
-exports.wrapCallBack = wrapCallBack;
 
 /***/ }),
 /* 1 */
@@ -178,15 +189,25 @@ var Box = exports.Box = function () {
 
 var _decorator = __webpack_require__(3);
 
+var _api = __webpack_require__(10);
+
+var output = {},
+    methods = ["find", "choose", "addOption", "count", "open", "close", "toogle", "activate", "deactivate", "clear", "addTypes", "setup"];
+
+(0, _api.setAPI)(output, methods);
+
+$.inputDecor = function (query) {
+	output.$elements = $(query);
+	return output;
+};
+
 $.fn.inputDecor = function (type, settings) {
 	this.each(function () {
-		this.decorator = new _decorator.Decorator($(this), type, settings);
+		this._decorator = new _decorator.Decorator($(this), type, settings);
 	});
 };
 
-$(document).ready(function () {
-	$('[data-inputdecor]').inputDecor();
-});
+$('[data-inputdecor]').inputDecor();
 
 /***/ }),
 /* 3 */
@@ -378,38 +399,39 @@ var Select = exports.Select = function () {
 	function Select($source, type, settings) {
 		_classCallCheck(this, Select);
 
-		var self = this,
-		    search = settings.search;
-
 		this.$source = $source.hide();
 
 		this.settings = {
 			type: type,
 			active: false,
 			name: $source.attr("name"),
-			speed: settings.speed || parseInt($source.attr("data-speed")) || 250,
-			rollup: settings.rollup || (0, _func.checkBoolean)($source.attr("data-rollup"), false),
-			className: settings.className || $source.attr("data-class") || "",
-			onChoose: settings.onChoose || $source.attr("data-on-choose"),
-			onReady: settings.onReady || $source.attr("data-on-ready"),
-			selected: settings.selected || parseInt($source.attr("data-selected")) || 0,
-			unselected: settings.unselected || (0, _func.checkBoolean)($source.attr("data-unselected"), false),
-			textButton: settings.textButton || $source.attr("data-text-button") || "Select value",
-			textUnselected: settings.textUnselected || $source.attr("data-text-unselected") || "-- not selected --"
+			speed: (0, _func.getOption)("speed", $source, settings.speed, 250),
+			rollup: (0, _func.getOption)("rollup", $source, settings.rollup, false),
+			className: (0, _func.getOption)("class", $source, settings.className, " "),
+			onChoose: (0, _func.getOption)("on-choose", $source, settings.onChoose, ""),
+			onReady: (0, _func.getOption)("on-ready", $source, settings.onReady, ""),
+			selectIndex: (0, _func.getOption)("select-index", $source, settings.selectIndex, 0),
+			unselected: (0, _func.getOption)("unselected", $source, settings.unselected, "-- not selected --"),
+			placeholder: (0, _func.getOption)("placeholder", $source, settings.placeholder, "Select value")
 		};
 
-		if (search || (0, _func.checkBoolean)($source.attr("data-search"), false)) this.settings.search = {
-			textEmpty: search && search.textEmpty || $source.attr("data-search-empty") || "-- not found --",
-			inButton: search && search.inButton || (0, _func.checkBoolean)($source.attr("data-search-inbutton"), false),
-			caseSense: search && search.caseSense || (0, _func.checkBoolean)($source.attr("data-search-case"), false),
-			wholeWord: search && search.wholeWord || (0, _func.checkBoolean)($source.attr("data-search-whole"), false),
-			beginWord: search && search.beginWord || (0, _func.checkBoolean)($source.attr("data-search-begin"), false)
-		};
+		if (this.settings.unselected === true) this.settings.unselected = "-- not selected --";
+
+		var search = (0, _func.getOption)("search", $source, settings.search, false);
+
+		if (search) {
+			if (search === true) search = {};
+			this.settings.search = {
+				textEmpty: (0, _func.getOption)("empty", $source, search.textEmpty, "-- not found --", "data-search-"),
+				inButton: (0, _func.getOption)("inbutton", $source, search.inButton, false, "data-search-"),
+				caseSense: (0, _func.getOption)("case", $source, search.caseSense, false, "data-search-"),
+				wholeWord: (0, _func.getOption)("whole", $source, search.wholeWord, false, "data-search-"),
+				beginWord: (0, _func.getOption)("begin", $source, search.beginWord, false, "data-search-")
+			};
+		}
 
 		this.value = $source.val();
-		this.text = this.settings.textButton;
-
-		console.log(this);
+		this.text = this.settings.placeholder;
 
 		this._create();
 	}
@@ -429,7 +451,7 @@ var Select = exports.Select = function () {
 			this.$elements = {
 				main: _func.DOC.create("div", "inputdecor-select " + (settings.className ? settings.className : "")),
 				buttonCont: _func.DOC.create("div", "button-wrapper"),
-				button: _func.DOC.create("button", "button").text(settings.textButton),
+				button: _func.DOC.create("button", "button").text(settings.placeholder),
 				label: _func.DOC.create("button", "label"),
 				hidden: _func.DOC.create("input", { "type": "hidden", "name": settings.name }).val(this.value),
 				listCont: _func.DOC.create("div", "list-wrapper", {
@@ -447,8 +469,7 @@ var Select = exports.Select = function () {
 			this.list = new _list.List(this.$source, {
 				type: settings.type,
 				selected: settings.selected,
-				unselected: settings.unselected,
-				textUnselected: settings.textUnselected
+				unselected: settings.unselected
 			});
 
 			// create search
@@ -489,14 +510,6 @@ var Select = exports.Select = function () {
 
 			if (this.search && settings.search.inButton) this.search.$elements.input.click(toogle);
 
-			this.list.onChoose = function (e) {
-				self._update(e);
-
-				if (typeof self.settings.onChoose == "function") self.settings.onChoose(e);
-
-				self.close();
-			};
-
 			document.body.addEventListener("click", function (e) {
 				var parent = $(e.target).closest(".inputdecor-select");
 				if (!parent.length) self.close();
@@ -505,7 +518,20 @@ var Select = exports.Select = function () {
 			// first select
 			this.list.choose(this.list.selected);
 
+			this.list.onChoose = function (e) {
+				self._update(e);
+
+				if (typeof self.settings.onChoose == "function") self.settings.onChoose(e);
+
+				self.close();
+			};
+
 			if (self.settings.onReady) self.settings.onReady(this);
+		}
+	}, {
+		key: 'find',
+		value: function find(value) {
+			this.search.find(value);
 		}
 	}, {
 		key: 'choose',
@@ -522,7 +548,7 @@ var Select = exports.Select = function () {
 	}, {
 		key: '_update',
 		value: function _update(data) {
-			if (data.unselected) this.text = this.settings.textButton;else this.text = data.text;
+			this.text = data.unselected ? this.settings.placeholder : data.text;
 
 			this.value = data.value;
 
@@ -553,14 +579,19 @@ var Select = exports.Select = function () {
 				this.settings.active = false;
 
 				if (this.search) {
-					if (this.settings.search.inButton) this.search.setValue(this.text);else this.search.clear();
+					this.settings.search.inButton ? this.search.setValue(this.text) : this.search.clear();
 				}
 			}
 		}
 	}, {
+		key: 'count',
+		value: function count() {
+			return this.list.length;
+		}
+	}, {
 		key: 'toogle',
 		value: function toogle() {
-			if (this.settings.active) this.close();else this.open();
+			this.settings.active ? this.close() : this.open();
 		}
 	}]);
 
@@ -594,7 +625,7 @@ var List = exports.List = function () {
 
 		this.length = 0;
 		this.options = [];
-		this.onChoose;
+		this.onChoose = function () {};
 		this.$element;
 		this.$allElements;
 		this.selected = settings.selected || 0;
@@ -632,7 +663,7 @@ var List = exports.List = function () {
 			this.$element = _func.DOC.create("ul", "list");
 
 			if (this.settings.unselected) {
-				var unselected = this.settings.textUnselected;
+				var unselected = this.settings.unselected;
 
 				if (this.settings.type == "select") unselected = '<option class="unselected">' + unselected + '</option>';else if (this.settings.type == "ul") unselected = '<li class="unselected">' + unselected + '</li>';
 
@@ -657,7 +688,7 @@ var List = exports.List = function () {
 			var data = {
 				value: target.value,
 				text: target.text,
-				unselected: target.text == this.settings.textUnselected ? true : false
+				unselected: target.text === this.settings.unselected ? true : false
 			};
 
 			this.$allElements.removeAttr("data-selected");
@@ -786,24 +817,34 @@ var Search = exports.Search = function () {
 	}, {
 		key: "setValue",
 		value: function setValue(str) {
-			this.$elements.input.val(str).blur();
-			this.$elements.clear.hide();
+			var blur = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+
+			this.$elements.input.val(str);
+
+			str ? this.$elements.clear.show() : this.$elements.clear.hide();
+
+			if (blur) {
+				this.$elements.clear.hide();
+				this.$elements.input.blur();
+			}
 		}
 	}, {
 		key: "clear",
 		value: function clear(focus) {
-			if (focus) this.$elements.input.focus().val("");else this.$elements.input.val("").blur();
+			focus ? this.$elements.input.focus().val("") : this.$elements.input.val("").blur();
 
 			this.find("");
 		}
 	}, {
 		key: "find",
 		value: function find(text) {
-			var count = this._find(this.options, text);
+			var found = this._find(this.options, text);
 
-			if (this.$elements.input.val()) this.$elements.clear.show();else this.$elements.clear.hide();
+			!found.length ? this.$elements.empty.show() : this.$elements.empty.hide();
 
-			if (!count) this.$elements.empty.show();else this.$elements.empty.hide();
+			this.setValue(text, false);
+
+			return found;
 		}
 	}, {
 		key: "_create",
@@ -833,7 +874,7 @@ var Search = exports.Search = function () {
 		key: "_find",
 		value: function _find(options, text) {
 			var self = this,
-			    count = 0;
+			    result = [];
 
 			options.forEach(function (option) {
 
@@ -841,17 +882,17 @@ var Search = exports.Search = function () {
 
 				if (option.childs) inside = self._find(option.childs, text);
 
-				if (inside) count += inside;
+				if (inside) result.concat(inside);
 
 				if (!self._compare(option.text, text)) {
 					if (!inside) option.$element.hide();
 				} else {
-					count++;
+					result.push(option.index);
 					option.$element.show();
 				}
 			});
 
-			return count;
+			return result;
 		}
 	}, {
 		key: "_compare",
@@ -895,105 +936,183 @@ var _func = __webpack_require__(0);
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var InputFile = exports.InputFile = function () {
-	function InputFile($element) {
+	function InputFile($source, settings) {
 		_classCallCheck(this, InputFile);
 
-		var self = this,
-		    settings;
+		var self = this;
 
-		this.$element = $element;
+		this.$source = $source;
 		this.$elements = {};
 
+		if (!settings) settings = {};
+
 		this.settings = {
-			textButton: this.$element.attr("data-text-button") || "Select the file",
-			textUnselected: this.$element.attr("data-text-unselected") || "-- is not selected --",
-			className: (0, _func.checkBoolean)(this.$element.attr("data-class"), false),
-			close: (0, _func.checkBoolean)(this.$element.attr("data-close"), false),
-			size: (0, _func.checkBoolean)(this.$element.attr("data-size"), false),
-			maxCount: this.$element.attr("data-max-count") || 3
+			placeholder: (0, _func.getOption)("placeholder", $source, settings.placeholder, "Select the file"),
+			unselected: (0, _func.getOption)("unselected", $source, settings.unselected, "-- is not selected --"),
+			className: (0, _func.getOption)("class", $source, settings.className, ""),
+			clear: (0, _func.getOption)("clear", $source, settings.clear, true),
+			size: (0, _func.getOption)("size", $source, settings.size, false),
+			maxCount: (0, _func.getOption)("max-count", $source, settings.maxCount, 3),
+			types: (0, _func.getOption)("types", $source, settings.types, false),
+			fileList: (0, _func.getOption)("file-list", $source, settings.fileList, false)
+		};
+
+		this.errors = {
+			maxCount: (0, _func.getOption)("MaxCountError", $source, settings, "Max count of files - "),
+			types: (0, _func.getOption)("TypesError", $source, settings, "You can only select files of types - ")
 		};
 
 		this._create(this.settings);
 	}
 
 	_createClass(InputFile, [{
+		key: "addTypes",
+		value: function addTypes(types) {
+			this.settings.types.concat(types);
+		}
+	}, {
+		key: "setup",
+		value: function setup(settings) {
+			for (var i in settings) {
+				if (i in this.settings) this.settings[i] = settings[i];else if (i in this.errors) this.errors[i] = settings[i];
+			}
+		}
+	}, {
 		key: "_create",
 		value: function _create(settings) {
 			var self = this,
 			    $elements = this.$elements;
 
-			this.$element.hide();
+			this.$source.hide();
 
 			$elements.wrapper = _func.DOC.create("div", "inputdecor-file " + (settings.className ? settings.className : ""));
-			$elements.unselected = _func.DOC.create("span", "unselected").text(settings.textUnselected);
+			$elements.unselected = _func.DOC.create("span", "unselected").text(settings.unselected);
 			$elements.list = _func.DOC.create("div", "files-list");
-			$elements.close = _func.DOC.create("button", "close");
-			$elements.close[0].onclick = function () {
-				self._hideFiles();
+			$elements.clear = _func.DOC.create("button", "clear").hide();
+			$elements.clear[0].onclick = function () {
+				self.clear();
 			};
 
-			$elements.button = _func.DOC.create("button", "button").text(settings.textButton).click(function (e) {
+			$elements.button = _func.DOC.create("button", "button").text(settings.placeholder).click(function (e) {
 				e.preventDefault();
-				self.$element.click();
+				self.$source.click();
 			});
 
-			this.$element.after($elements.wrapper);
+			this.$source.after($elements.wrapper);
 			$elements.wrapper.append($elements.button);
 			$elements.wrapper.append($elements.list);
 			$elements.list.append($elements.unselected);
-			$elements.wrapper.append(this.$element);
+			$elements.wrapper.append($elements.clear);
+			$elements.wrapper.append(this.$source);
 
-			this.$element.change(function (e) {
-				if (self.$element[0].files) {
-					var files = self._getFiles(self.$element[0].files);
-					self._showFiles(files);
+			if (!settings.fileList) $elements.list.hide();
+			if (settings.types && typeof settings.types == "string") settings.types = settings.types.replace(/\s+/g, "").split(",");
+
+			this.$source.change(function (e) {
+				if (self.$source[0].files) {
+					var files = self._getFiles(self.$source[0].files);
+					files ? self._showFiles(files) : self.clear();
 				}
 			});
 		}
 	}, {
 		key: "_getFiles",
 		value: function _getFiles(files) {
-			var list = [];
+			var list = [],
+			    settings = this.settings;
 
 			for (var i = 0; i < files.length; i++) {
-				list.push(files[i]);
-			}return list;
+				if (i >= settings.maxCount) {
+					alert(this.errors.maxCount + settings.maxCount + "!");
+					return false;
+				}
+
+				var type = files[i].name.split(".");
+				type = type[type.length - 1].toLowerCase();
+
+				if (settings.types && settings.types.indexOf(type) == -1) {
+					alert(this.errors.types + settings.types.join(", ") + "!");
+					return false;
+				}
+
+				list.push({
+					name: files[i].name,
+					size: Math.round(files[i].size / 1024),
+					type: type
+				});
+			}
+
+			return list;
 		}
 	}, {
 		key: "_showFiles",
 		value: function _showFiles(files) {
-			var result = "";
+			var result = this._printFiles(files);
 
-			for (var i = 0; i < files.length; i++) {
-				result += "<div class='file'><label>" + files[i].name + "</label>";
+			this.settings.fileList ? this.$elements.list.html(result) : this.$elements.button.html(result).addClass("choosen");
 
-				if (this.settings.size) result += "<span class='size'>" + Math.round(files[i].size / 1024) + "kb</span>";
-
-				result += "</div>";
-
-				if (i >= this.settings.maxCount) {
-					this._hideFiles();
-					alert("максимальное количество файлов - " + this.settings.maxCount + "!");
-					return;
-				}
-			}
-
-			this.$elements.list.empty();
-			this.$elements.list.append(result);
-
-			if (this.settings.close) this.$elements.list.append(this.$elements.close);else this.$elements.list.append("<span></span>");
+			if (this.settings.clear) this.$elements.clear.show();
 		}
 	}, {
-		key: "_hideFiles",
-		value: function _hideFiles() {
-			this.$element.val('');
-			this.$elements.list.empty();
-			this.$elements.list.append(this.$elements.unselected);
+		key: "_printFiles",
+		value: function _printFiles(files) {
+			var _this = this;
+
+			var result = "";
+
+			files.forEach(function (file) {
+				result += "<div class='file'><span class='name'>" + file.name + "</span>";
+				if (_this.settings.size) result += "<span class='size'>" + file.size + "kb</span>";
+				result += "</div>";
+			});
+
+			return result;
+		}
+	}, {
+		key: "clear",
+		value: function clear() {
+			this.$source.val('');
+
+			if (!this.settings.fileList) this.$elements.button.html("<span>" + this.settings.placeholder + "</span>");else {
+				this.$elements.list.empty();
+				this.$elements.list.append(this.$elements.unselected);
+			}
+
+			this.$elements.clear.hide();
 		}
 	}]);
 
 	return InputFile;
 }();
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.setAPI = setAPI;
+function _callMethod(target, name, data) {
+	var result = [];
+
+	target.$elements.each(function () {
+		if (this._decorator && typeof this._decorator.input[name] == "function") result.push(this._decorator.input[name](data));
+	});
+
+	return result.length == 1 ? result[0] : result;
+}
+
+function setAPI(target, methods) {
+	methods.forEach(function (name) {
+		target[name] = function (data) {
+			return _callMethod(target, name, data);
+		};
+	});
+}
 
 /***/ })
 /******/ ]);
