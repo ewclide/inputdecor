@@ -56,7 +56,7 @@ export class Search
 
 		this.$elements = {
 			main  : DOC.create("div", "search"),
-			input : DOC.create("input", { "type" : "text" }),
+			input : DOC.create("input", { "type" : "text", "class" : "button" }),
 			clear : DOC.create("button", "clear").hide(),
 			empty : DOC.create("span", "empty").text(this.settings.textEmpty).hide()
 		}

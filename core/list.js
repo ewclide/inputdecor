@@ -74,7 +74,10 @@ export class List
 	choose(target)
 	{
 		if (typeof target == "number")
+		{
+			if (target >= this.options.length) return false;
 			target = this.options[target];
+		}
 
 		var data = {
 			value : target.value,

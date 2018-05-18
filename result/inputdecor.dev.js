@@ -480,7 +480,10 @@ var Select = exports.Select = function () {
 			// append elements
 			this.$source.before($elements.main);
 			$elements.buttonCont.append($elements.button, $elements.label.append("<span class='marker'></span>"));
-			$elements.main.append($elements.hidden, $elements.buttonCont, $elements.listCont.append(this.list.$element));
+
+			if (this.settings.type == "ul") $elements.main.append($elements.hidden);
+
+			$elements.main.append($elements.buttonCont, $elements.listCont.append(this.list.$element));
 
 			if (this.search) {
 				if (settings.search.inButton) {
@@ -674,7 +677,10 @@ var List = exports.List = function () {
 	}, {
 		key: "choose",
 		value: function choose(target) {
-			if (typeof target == "number") target = this.options[target];
+			if (typeof target == "number") {
+				if (target >= this.options.length) return false;
+				target = this.options[target];
+			}
 
 			var data = {
 				value: target.value,
@@ -842,7 +848,7 @@ var Search = exports.Search = function () {
 
 			this.$elements = {
 				main: _func.DOC.create("div", "search"),
-				input: _func.DOC.create("input", { "type": "text" }),
+				input: _func.DOC.create("input", { "type": "text", "class": "button" }),
 				clear: _func.DOC.create("button", "clear").hide(),
 				empty: _func.DOC.create("span", "empty").text(this.settings.textEmpty).hide()
 			};

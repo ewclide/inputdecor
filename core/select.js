@@ -110,8 +110,11 @@ export class Select
 			$elements.button,
 			$elements.label.append("<span class='marker'></span>")
 		);
+		
+		if (this.settings.type == "ul")
+			$elements.main.append($elements.hidden);
+
 		$elements.main.append(
-			$elements.hidden,
 			$elements.buttonCont,
 			$elements.listCont.append(this.list.$element)
 		);
