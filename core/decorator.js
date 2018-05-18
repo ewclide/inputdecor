@@ -5,24 +5,20 @@ import { InputFile } from './file';
 
 export class Decorator
 {
-	constructor($element, type, settings)
+	constructor($element, settings = {})
 	{
-		if (typeof type != "string")
-		{
-			type = $element.attr("type") || $element[0].tagName.toLowerCase();
-			settings = {}
-		}
+		var type = $element.attr("type") || $element[0].tagName.toLowerCase();
 
 		if (type == "ul" || type == "select")
 			this.input = new Select($element, type, settings);
 
 		else if (type == "checkbox")
-			this.input = new Checkbox($element, type, settings);
+			this.input = new Checkbox($element, settings);
 
 		else if (type == "radio")
-			this.input = new Radio($element, type, settings);
+			this.input = new Radio($element, settings);
 
 		else if (type == "file")
-			this.input = new InputFile($element, type, settings);
+			this.input = new InputFile($element, settings);
 	}
 }

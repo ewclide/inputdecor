@@ -18,7 +18,7 @@ export class Select
 			onChoose    : getOption("on-choose", $source, settings.onChoose, ""),
 			onReady     : getOption("on-ready", $source, settings.onReady, ""),
 			selectIndex : getOption("select-index", $source, settings.selectIndex, 0),
-			unselected  : getOption("unselected", $source, settings.unselected, "-- not selected --"),
+			unselected  : getOption("unselected", $source, settings.unselected, false),
 			placeholder : getOption("placeholder", $source, settings.placeholder, "Select value")
 		}
 
@@ -83,9 +83,12 @@ export class Select
 	        {
 	        	type : settings.type,
 	        	selected : settings.selected,
-	        	unselected : settings.unselected
+	        	unselected : settings.unselected,
+	        	selectIndex : settings.selectIndex
 	        }
 	    );
+
+	    this.choose(this.list.selectIndex);
 
 	    this.list.onChoose = function(e)
 		{
@@ -152,9 +155,6 @@ export class Select
 			var parent = $(e.target).closest(".inputdecor-select");
 			if (!parent.length) self.close();
 		});
-
-		// first select
-		// this.list.choose(this.list.selected);
 
 		if (self.settings.onReady)
 			self.settings.onReady(this);

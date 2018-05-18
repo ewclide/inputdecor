@@ -3,9 +3,9 @@ import { Box } from './box';
 
 export class Radio extends Box
 {
-	constructor($element, type, settings)
+	constructor($element, settings)
 	{
-		super(type);
+		super();
 
 		var self = this;
 

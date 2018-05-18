@@ -24,14 +24,12 @@ target.addOption({
 	html   : "<a href='#'>option " + count + "</a>",
 	childs : [
 	{
-		html   : "<a href='#'>option " + count +".1</a>",
-		text   : "test_1",
-		value  : 1,
+		text   : "option " + count +".1",
+		value  : 1
 	},
 	{
-		html   : "<a href='#'>option " + count +".2</a>",
-		text   : "test_2",
-		value  : 2,
+		text   : "option " + count +".2",
+		value  : 2
 	}
 	]
 });

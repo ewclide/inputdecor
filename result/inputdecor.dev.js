@@ -186,9 +186,9 @@ var _api = __webpack_require__(10);
 var output = {},
     methods = ["find", "choose", "addOption", "count", "open", "close", "toogle", "activate", "deactivate", "clear"];
 
-$.fn.inputDecor = function (type, settings) {
+$.fn.inputDecor = function (settings) {
 	this.each(function () {
-		this._decorator = new _decorator.Decorator($(this), type, settings);
+		this._decorator = new _decorator.Decorator($(this), settings);
 	});
 };
 
@@ -223,15 +223,14 @@ var _file = __webpack_require__(9);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Decorator = exports.Decorator = function Decorator($element, type, settings) {
+var Decorator = exports.Decorator = function Decorator($element) {
+	var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
 	_classCallCheck(this, Decorator);
 
-	if (typeof type != "string") {
-		type = $element.attr("type") || $element[0].tagName.toLowerCase();
-		settings = {};
-	}
+	var type = $element.attr("type") || $element[0].tagName.toLowerCase();
 
-	if (type == "ul" || type == "select") this.input = new _select.Select($element, type, settings);else if (type == "checkbox") this.input = new _checkbox.Checkbox($element, type, settings);else if (type == "radio") this.input = new _radio.Radio($element, type, settings);else if (type == "file") this.input = new _file.InputFile($element, type, settings);
+	if (type == "ul" || type == "select") this.input = new _select.Select($element, type, settings);else if (type == "checkbox") this.input = new _checkbox.Checkbox($element, settings);else if (type == "radio") this.input = new _radio.Radio($element, settings);else if (type == "file") this.input = new _file.InputFile($element, settings);
 };
 
 /***/ }),
@@ -259,7 +258,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var Checkbox = exports.Checkbox = function (_Box) {
 	_inherits(Checkbox, _Box);
 
-	function Checkbox($element, type, settings) {
+	function Checkbox($element, settings) {
 		_classCallCheck(this, Checkbox);
 
 		var _this = _possibleConstructorReturn(this, (Checkbox.__proto__ || Object.getPrototypeOf(Checkbox)).call(this));
@@ -315,10 +314,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var Radio = exports.Radio = function (_Box) {
 	_inherits(Radio, _Box);
 
-	function Radio($element, type, settings) {
+	function Radio($element, settings) {
 		_classCallCheck(this, Radio);
 
-		var _this = _possibleConstructorReturn(this, (Radio.__proto__ || Object.getPrototypeOf(Radio)).call(this, type));
+		var _this = _possibleConstructorReturn(this, (Radio.__proto__ || Object.getPrototypeOf(Radio)).call(this));
 
 		var self = _this;
 
@@ -403,7 +402,7 @@ var Select = exports.Select = function () {
 			onChoose: (0, _func.getOption)("on-choose", $source, settings.onChoose, ""),
 			onReady: (0, _func.getOption)("on-ready", $source, settings.onReady, ""),
 			selectIndex: (0, _func.getOption)("select-index", $source, settings.selectIndex, 0),
-			unselected: (0, _func.getOption)("unselected", $source, settings.unselected, "-- not selected --"),
+			unselected: (0, _func.getOption)("unselected", $source, settings.unselected, false),
 			placeholder: (0, _func.getOption)("placeholder", $source, settings.placeholder, "Select value")
 		};
 
@@ -461,8 +460,11 @@ var Select = exports.Select = function () {
 			this.list = new _list.List(this.$source, {
 				type: settings.type,
 				selected: settings.selected,
-				unselected: settings.unselected
+				unselected: settings.unselected,
+				selectIndex: settings.selectIndex
 			});
+
+			this.choose(this.list.selectIndex);
 
 			this.list.onChoose = function (e) {
 				self._update(e);
@@ -514,9 +516,6 @@ var Select = exports.Select = function () {
 				var parent = $(e.target).closest(".inputdecor-select");
 				if (!parent.length) self.close();
 			});
-
-			// first select
-			// this.list.choose(this.list.selected);
 
 			if (self.settings.onReady) self.settings.onReady(this);
 		}
@@ -636,12 +635,15 @@ var List = exports.List = function () {
 			var self = this,
 			    option = this._createOption(data);
 
+			this.$source.append("<option value=" + option.value + ">" + option.text + "</option>");
+
 			if (data.childs) {
 				option.$element.addClass("group");
 
 				data.childs.forEach(function (child) {
 					child.className = "child";
 					self._createOption(child);
+					self.$source.append("<option value=" + child.value + ">" + child.text + "</option>");
 				});
 			}
 
@@ -673,8 +675,6 @@ var List = exports.List = function () {
 
 				self._choose(target);
 			});
-
-			this.choose(this.selectIndex);
 		}
 	}, {
 		key: "_choose",
@@ -742,7 +742,7 @@ var List = exports.List = function () {
 				className: cls ? cls : ""
 			});
 
-			if (selected) this.selected = option.index;
+			if (selected) this.selectIndex = option.index;
 
 			return option;
 		}
@@ -752,7 +752,7 @@ var List = exports.List = function () {
 			var $li = _func.DOC.create("li"),
 			    option = {
 				$element: $li,
-				value: data.value,
+				value: data.value !== undefined ? data.value : "",
 				text: data.html && !data.text ? $("<div>" + data.html + "</div>").text() : data.text,
 				index: this.$element._decorLength++
 			};

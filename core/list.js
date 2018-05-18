@@ -27,6 +27,8 @@ export class List
 		var self = this,
 			option = this._createOption(data);
 
+		this.$source.append("<option value=" + option.value + ">"+ option.text +"</option>");
+
 		if (data.childs)
 		{
 			option.$element.addClass("group");
@@ -34,6 +36,7 @@ export class List
 			data.childs.forEach(function(child){
 				child.className = "child";
 				self._createOption(child);
+				self.$source.append("<option value=" + child.value + ">"+ child.text +"</option>");
 			});
 		}
 
@@ -71,8 +74,6 @@ export class List
 
 			self._choose(target);
 		});
-
-		this.choose(this.selectIndex);
 	}
 
 	_choose(target)
@@ -147,7 +148,7 @@ export class List
 			className : cls ? cls : ""
 		});
 
-		if (selected) this.selected = option.index;
+		if (selected) this.selectIndex = option.index;
 
 		return option;
 	}
@@ -157,7 +158,7 @@ export class List
 		var $li = DOC.create("li"),
 			option = {
 				$element : $li,
-				value    : data.value,
+				value    : data.value !== undefined ? data.value : "",
 				text     : data.html && !data.text ? $("<div>" + data.html + "</div>").text() : data.text,
 				index 	 : this.$element._decorLength++
 			}

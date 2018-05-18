@@ -25,4 +25,4 @@ const min = {
 	module: { rules: [ babel ] }
 }
 
-module.exports = dev;
+module.exports = min;

@@ -15,10 +15,10 @@ var output = {},
 		"clear"
 	];
 
-$.fn.inputDecor = function(type, settings)
+$.fn.inputDecor = function(settings)
 {
 	this.each(function(){
-		this._decorator = new Decorator($(this), type, settings);
+		this._decorator = new Decorator($(this), settings);
 	});
 }
 

@@ -8,11 +8,11 @@ html:
 
 JavaScript:
 
-    $(selector).inputDecor(type, settings)
+    $(selector).inputDecor(settings)
 	
-Also inputDecor has its own API with which you can affect the individual elements and group:
+Also script has its own API with which you can affect the individual elements and group:
 	
-    $.inputDecor(selector).method();
+    $.inputDecor(selector).method()
     
 Example:
 
@@ -119,7 +119,7 @@ Searching settings:
 - **toogle()** - toogle the list
 - **find( value )** - find the value in the list. Returns array of found values
 - **count()** - returns count of options in the list
-- **addOption( settings )** - append option to the list. Settings: value, (html | text), childs (only for "ul" method)
+- **addOption( { value, (html | text), childs } )** - append option to the list.
 
 ```html
 <select

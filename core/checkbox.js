@@ -2,7 +2,7 @@ import {Box} from './box';
 
 export class Checkbox extends Box
 {
-	constructor($element, type, settings)
+	constructor($element, settings)
 	{
 		super();
 		this.init($element);
