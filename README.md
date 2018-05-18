@@ -98,9 +98,7 @@ have not special options, but support standart attribute checked
 | unselected   | data-unselected   | adds unselected element to the list | false          |
 | placeholder  | data-placeholder  | defines text to the button          | "Select value" |
 
-Select decorator also support grouping options ( It work only for "ul" elements ).  
-Also you can use standart attribute "selected" in option instead "selectIndex" setting.  
-As the unselected parameter, you can pass true or a string with text to replace the default value
+Select decorator also support grouping options ( It work only for "ul" elements ). Also you can use standart attribute "selected" in option instead "selectIndex" setting. As the unselected parameter, you can pass true or a string with text to replace the default value
 
 **Searching settings:**
 
