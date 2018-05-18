@@ -17,11 +17,6 @@ export class List
 		this._create();
 	}
 
-	choose(index)
-	{
-		return this._choose(this.options[index]);
-	}
-
 	addOption(data)
 	{
 		var self = this,
@@ -54,10 +49,10 @@ export class List
 			var unselected = this.settings.unselected;
 
 			if (this.settings.type == "select")
-				unselected = '<option class="unselected">' + unselected + '</option>';
+				unselected = '<option value="">' + unselected + '</option>';
 
 			else if (this.settings.type == "ul")
-				unselected = '<li class="unselected">' + unselected + '</li>';
+				unselected = '<li class="unselected" value="">' + unselected + '</li>';
 
 			this.$source.prepend(unselected);
 			if (this.selectIndex) this.selectIndex++;
@@ -72,15 +67,19 @@ export class List
 			if ("_decorTarget" in e.target) target = e.target._decorTarget;
 			else target = $(e.target).closest("li")[0]._decorTarget;
 
-			self._choose(target);
+			self.choose(target);
 		});
 	}
 
-	_choose(target)
+	choose(target)
 	{
+		if (typeof target == "number")
+			target = this.options[target];
+
 		var data = {
 			value : target.value,
 			text  : target.text,
+			index  : target.index,
 			unselected : target.text === this.settings.unselected
 		}
 

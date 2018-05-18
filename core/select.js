@@ -88,7 +88,7 @@ export class Select
 	        }
 	    );
 
-	    this.choose(this.list.selectIndex);
+	    this.choose(+this.list.selectIndex);
 
 	    this.list.onChoose = function(e)
 		{

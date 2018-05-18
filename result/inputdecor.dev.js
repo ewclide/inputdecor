@@ -464,7 +464,7 @@ var Select = exports.Select = function () {
 				selectIndex: settings.selectIndex
 			});
 
-			this.choose(this.list.selectIndex);
+			this.choose(+this.list.selectIndex);
 
 			this.list.onChoose = function (e) {
 				self._update(e);
@@ -625,11 +625,6 @@ var List = exports.List = function () {
 	}
 
 	_createClass(List, [{
-		key: "choose",
-		value: function choose(index) {
-			return this._choose(this.options[index]);
-		}
-	}, {
 		key: "addOption",
 		value: function addOption(data) {
 			var self = this,
@@ -659,7 +654,7 @@ var List = exports.List = function () {
 			if (this.settings.unselected) {
 				var unselected = this.settings.unselected;
 
-				if (this.settings.type == "select") unselected = '<option class="unselected">' + unselected + '</option>';else if (this.settings.type == "ul") unselected = '<li class="unselected">' + unselected + '</li>';
+				if (this.settings.type == "select") unselected = '<option value="">' + unselected + '</option>';else if (this.settings.type == "ul") unselected = '<li class="unselected" value="">' + unselected + '</li>';
 
 				this.$source.prepend(unselected);
 				if (this.selectIndex) this.selectIndex++;
@@ -673,15 +668,18 @@ var List = exports.List = function () {
 
 				if ("_decorTarget" in e.target) target = e.target._decorTarget;else target = $(e.target).closest("li")[0]._decorTarget;
 
-				self._choose(target);
+				self.choose(target);
 			});
 		}
 	}, {
-		key: "_choose",
-		value: function _choose(target) {
+		key: "choose",
+		value: function choose(target) {
+			if (typeof target == "number") target = this.options[target];
+
 			var data = {
 				value: target.value,
 				text: target.text,
+				index: target.index,
 				unselected: target.text === this.settings.unselected
 			};
 
