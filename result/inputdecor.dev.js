@@ -390,11 +390,13 @@ var Select = exports.Select = function () {
 	function Select($source, type, settings) {
 		_classCallCheck(this, Select);
 
+		var offset = window.innerHeight - $source.offset().top;
+
 		this.$source = $source.hide();
+		this.active = false;
 
 		this.settings = {
 			type: type,
-			active: false,
 			name: $source.attr("name"),
 			speed: (0, _func.getOption)("speed", $source, settings.speed, 250),
 			rollup: (0, _func.getOption)("rollup", $source, settings.rollup, false),
@@ -424,12 +426,12 @@ var Select = exports.Select = function () {
 		this.value = $source.val();
 		this.text = this.settings.placeholder;
 
-		this._create();
+		this._create(offset);
 	}
 
 	_createClass(Select, [{
 		key: '_create',
-		value: function _create() {
+		value: function _create(offset) {
 			var self = this,
 			    $elements,
 			    settings = this.settings;
@@ -450,7 +452,8 @@ var Select = exports.Select = function () {
 					"width": "100%",
 					"transform": "scaleY(0)",
 					"transform-origin": "100% 0",
-					"transition": settings.speed + "ms"
+					"transition": settings.speed + "ms",
+					"z-index": offset / 2
 				})
 			};
 
@@ -558,7 +561,7 @@ var Select = exports.Select = function () {
 				this.$elements.listCont.css("transform", "scaleY(1)");
 				this.$elements.button.addClass("active");
 				this.$elements.label.addClass("active");
-				this.settings.active = true;
+				this.active = true;
 
 				if (this.search) this.search.clear(true);
 			}
@@ -570,7 +573,7 @@ var Select = exports.Select = function () {
 				this.$elements.listCont.css("transform", "scaleY(0)");
 				this.$elements.button.removeClass("active");
 				this.$elements.label.removeClass("active");
-				this.settings.active = false;
+				this.active = false;
 
 				if (this.search) {
 					this.settings.search.inButton ? this.search.setValue(this.text) : this.search.clear();
@@ -585,7 +588,7 @@ var Select = exports.Select = function () {
 	}, {
 		key: 'toogle',
 		value: function toogle() {
-			this.settings.active ? this.close() : this.open();
+			this.active ? this.close() : this.open();
 		}
 	}]);
 
@@ -828,7 +831,12 @@ var Search = exports.Search = function () {
 		value: function clear(focus) {
 			focus ? this.$elements.input.focus().val("") : this.$elements.input.val("").blur();
 
-			this.find("");
+			this.options.forEach(function (option) {
+				option.childs && option.childs.forEach(function (child) {
+					return child.$element.show();
+				});
+				option.$element.show();
+			});
 		}
 	}, {
 		key: "find",
@@ -839,7 +847,7 @@ var Search = exports.Search = function () {
 
 			this.setValue(text, false);
 
-			return found;
+			return found ? true : false;
 		}
 	}, {
 		key: "_create",
@@ -878,13 +886,7 @@ var Search = exports.Search = function () {
 				if (option.childs) inside = _this._find(option.childs, text);
 				if (inside) count += inside;
 
-				if (!_this._compare(option.text, text)) {
-					if (!inside) option.$element.hide();
-				} else {
-					count++;
-					// result.push(option.index);
-					option.$element.show();
-				}
+				!_this._compare(option.text, text) && !inside ? option.$element.hide() : (count++, option.$element.show());
 			});
 
 			return count;

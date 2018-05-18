@@ -6,11 +6,13 @@ export class Select
 {
 	constructor($source, type, settings)
 	{
+		var offset = window.innerHeight - $source.offset().top;
+
 		this.$source = $source.hide();
+		this.active = false;
 
 		this.settings = {
 			type        : type,
-			active      : false,
 			name        : $source.attr("name"),
 			speed       : getOption("speed", $source, settings.speed, 250),
 			rollup      : getOption("rollup", $source, settings.rollup, false),
@@ -42,10 +44,10 @@ export class Select
 		this.value = $source.val();
 		this.text = this.settings.placeholder;
 
-		this._create();
+		this._create(offset);
 	}
 
-	_create()
+	_create(offset)
 	{
 		var self = this,
 			$elements,
@@ -70,7 +72,8 @@ export class Select
 	        		"width" : "100%",
 	        		"transform" : "scaleY(0)",
 	        		"transform-origin" : "100% 0",
-	        		"transition" : settings.speed + "ms"
+	        		"transition" : settings.speed + "ms",
+	        		"z-index"  : offset / 2
 	        	}
 	        )
         }
@@ -200,7 +203,7 @@ export class Select
 			this.$elements.listCont.css("transform", "scaleY(1)");
 			this.$elements.button.addClass("active");
 			this.$elements.label.addClass("active");
-			this.settings.active = true;
+			this.active = true;
 
 			if (this.search) this.search.clear(true);
 		}
@@ -213,7 +216,7 @@ export class Select
 			this.$elements.listCont.css("transform", "scaleY(0)");
 			this.$elements.button.removeClass("active");
 			this.$elements.label.removeClass("active");
-			this.settings.active = false;
+			this.active = false;
 
 			if (this.search)
 			{
@@ -231,6 +234,6 @@ export class Select
 
 	toogle()
 	{
-		this.settings.active ? this.close() : this.open();
+		this.active ? this.close() : this.open();
 	}	
 }

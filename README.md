@@ -34,7 +34,7 @@ $.inputDecor('#target').find("option 1");
 | fileList    | data-file-list   |  displays the selected files in a separate list |  false                   |
 | drop        | data-drop        |  *in developing...*                             |  false                   |
 
-    multifile mode is activated as well as in native html
+multifile mode is activated as well as in native html
 
 ```html
 	<input type="file" name="file" multiple
@@ -46,13 +46,22 @@ $.inputDecor('#target').find("option 1");
 		data-types="gif, jpg, png"
 	>
 ```
+```js
+	$("#some-file").inputDecor({
+		placeholder : "Choose",
+		fileList    : true,
+		size        : true,
+		maxCount    : 5,
+		types       : [ "pdf", "txt", "doc", "docx" ]
+	});
+```
 
 **API Methods:**
 - **clear()** - clears list of added files
 
 ## Checkbox settings
 
-> have not special options, but support standart attribute checked
+have not special options, but support standart attribute checked
 
 **API Methods:**
 - **activate()** - activate checkbox
@@ -89,9 +98,9 @@ $.inputDecor('#target').find("option 1");
 | unselected   | data-unselected   | adds unselected element to the list | false          |
 | placeholder  | data-placeholder  | defines text to the button          | "Select value" |
 
-    Select decorator also support grouping options ( It work only for "ul" elements ).  
-    Also you can use standart attribute "selected" in option instead "selectIndex" setting.  
-    As the unselected parameter, you can pass true or a string with text to replace the default value
+Select decorator also support grouping options ( It work only for "ul" elements ).  
+Also you can use standart attribute "selected" in option instead "selectIndex" setting.  
+As the unselected parameter, you can pass true or a string with text to replace the default value
 
 **Searching settings:**
 
@@ -103,8 +112,8 @@ $.inputDecor('#target').find("option 1");
 | wholeWord  | data-search-whole    | configure whole word searching                            | false             |
 | beginWord  | data-search-begin    | configure searching by only first characters in the words | false             |
 
-    In order to activate the search in the list you need to specify the appropriate setting "search".  
-    If you specify "true", the search will use the default settings or you need to specify an object with settings instead of "true
+In order to activate the search in the list you need to specify the appropriate setting "search".  
+If you specify "true", the search will use the default settings or you need to specify an object with settings instead of "true
 
 **Callbacks:**
 

@@ -34,7 +34,10 @@ export class Search
 		? this.$elements.input.focus().val("")
 		: this.$elements.input.val("").blur();
 
-		this.find("");
+		this.options.forEach( option => {
+			option.childs && option.childs.forEach( child => child.$element.show() );
+			option.$element.show();
+		})
 	}
 
 	find(text)
@@ -47,7 +50,7 @@ export class Search
 
 		this.setValue(text, false);
 
-		return found;
+		return found ? true : false;
 	}
 
 	_create()
@@ -87,16 +90,10 @@ export class Search
 			if (option.childs) inside = this._find(option.childs, text);
 			if (inside) count += inside;
 
-			if (!this._compare(option.text, text))
-			{
-				if (!inside) option.$element.hide();
-			}
-			else
-			{
-				count++;
-				// result.push(option.index);
-				option.$element.show();
-			}
+			!this._compare(option.text, text) && !inside
+			? option.$element.hide()
+			: ( count++, option.$element.show())
+			
 		});
 
 		return count;
