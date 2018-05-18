@@ -41,8 +41,6 @@ export class Search
 	{
 		var found = this._find(this.options, text);
 
-		console.log(found)
-
 		!found
 		? this.$elements.empty.show()
 		: this.$elements.empty.hide();
@@ -69,7 +67,6 @@ export class Search
 
 		this.$elements.clear.click(function(e){
 			e.preventDefault();
-			console.log(e)
 			self.clear(true);
 		});
 

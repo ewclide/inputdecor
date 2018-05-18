@@ -835,8 +835,6 @@ var Search = exports.Search = function () {
 		value: function find(text) {
 			var found = this._find(this.options, text);
 
-			console.log(found);
-
 			!found ? this.$elements.empty.show() : this.$elements.empty.hide();
 
 			this.setValue(text, false);
@@ -861,7 +859,6 @@ var Search = exports.Search = function () {
 
 			this.$elements.clear.click(function (e) {
 				e.preventDefault();
-				console.log(e);
 				self.clear(true);
 			});
 
