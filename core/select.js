@@ -87,6 +87,16 @@ export class Select
 	        }
 	    );
 
+	    this.list.onChoose = function(e)
+		{
+			self._update(e);
+
+			if (typeof self.settings.onChoose == "function")
+				self.settings.onChoose(e);
+
+			self.close();
+		};
+
         // create search
         if (settings.search)
         	this.search = new Search(this.list, settings.search);
@@ -144,17 +154,7 @@ export class Select
 		});
 
 		// first select
-		this.list.choose(this.list.selected);
-
-		this.list.onChoose = function(e)
-		{
-			self._update(e);
-
-			if (typeof self.settings.onChoose == "function")
-				self.settings.onChoose(e);
-
-			self.close();
-		};
+		// this.list.choose(this.list.selected);
 
 		if (self.settings.onReady)
 			self.settings.onReady(this);

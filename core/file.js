@@ -23,23 +23,11 @@ export class InputFile
 		}
 
 		this.errors = {
-			maxCount : getOption("MaxCountError", $source, settings, "Max count of files - "),
-			types : getOption("TypesError", $source, settings, "You can only select files of types - ")
+			maxCount : getOption("maxcount-error", $source, settings.MaxCountError, "Max count of files - "),
+			types : getOption("types-error", $source, settings.TypesError, "You can only select files of types - ")
 		}
 
 		this._create(this.settings);
-	}
-
-	addTypes(types)
-	{
-		this.settings.types.concat(types);
-	}
-
-	setup(settings)
-	{
-		for (var i in settings)
-			if (i in this.settings) this.settings[i] = settings[i]
-			else if (i in this.errors) this.errors[i] = settings[i]
 	}
 
 	_create(settings)

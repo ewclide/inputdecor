@@ -11,11 +11,11 @@
 </head>
 <body>
 
-	<input data-inputdecor type="checkbox" name="checkbox" value="1">
+	<input data-inputdecor type="checkbox" name="checkbox" checked value="1">
 	<br><br>
 
 	<input data-inputdecor type="radio" name="radio" checked value="1">
-	<input data-inputdecor type="radio" name="radio" value="2" data-remove="true">
+	<input data-inputdecor type="radio" name="radio" value="2" data-remove>
 	<input data-inputdecor type="radio" name="radio" value="3">
 	<input data-inputdecor type="radio" name="radio" value="4">
 	<input data-inputdecor type="radio" name="radio" value="5">
@@ -23,16 +23,17 @@
 
 	<input type="file" name="file" multiple
 		data-inputdecor
+		data-placeholder="Choose"
 		data-class="myclass"
-		data-clear="false"
 		data-size
 		data-file-list
-		data-max-count="3"
+		data-max-count="5"
 		data-types="gif, jpg, png"
 	>
+
 	<br>
 
-	<ul data-inputdecor name="list" data-search data-unselected="false" data-select-index="4">
+	<ul data-inputdecor name="list" data-search data-select-index="4">
 		<li value="value 1"><a href="#">value 1</a></li>
 		<li value="value 2" data-group="value 2">
 			<ul>

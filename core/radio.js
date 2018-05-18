@@ -1,11 +1,11 @@
-import { checkBoolean } from './func';
-import {Box} from './box';
+import { getOption } from './func';
+import { Box } from './box';
 
 export class Radio extends Box
 {
-	constructor($element)
+	constructor($element, type, settings)
 	{
-		super();
+		super(type);
 
 		var self = this;
 
@@ -33,7 +33,7 @@ export class Radio extends Box
 			if (checked) return true;
 			else return false;
 		})();
-		this.remove = checkBoolean(self.$element.attr("data-remove"), false);
+		this.remove = getOption("remove", $element, undefined, false);
 		this.radios = $('input[type=radio][name="' + this.name + '"]');
 		this.$element[0].inputstyler = this;
 	}

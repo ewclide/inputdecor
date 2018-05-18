@@ -1,54 +1,6 @@
-# Input Decorator
+# Input decorator
 
-### File settings
-
-- **textButton** - add text to button
-- **textUnselected** - add unselected text
-- **className** - add class to wrapper (for attribute - simple "class")
-- **close** - add close button
-- **size** - show sizes of the files
-- **maxCount** - define max files count on multyfile mode
-- **drop** - *in developing...*
-
-### Checkbox settings
-
-> have not special options, but support standart attribute checked
-	
-### Radio settings
-
-- **remove** - allows to deactivate radio
-- **support** standart attribute checked
-
-### Select settings
-
-- **speed** - animation time in milliseconds
-- **rollup** - add button which collapse the list
-- **className** - add class to the wrapper (for attribute - simple 'class')
-- **selected** - index of the selected option ( Also you can use standart  attribute "selected" )
-- **unselected** - add unselected element to the list
-- **textButton** - define default text to the button
-- **textUnselected** - define text to unselected element
-- **search**
-	- **textEmpty** - define text to "not found" element
-	- **inButton** - append the search input instead the button
-	- **caseSense** - configure case sensitivity searching
-	- **wholeWord** - configure whole word searching
-	- **beginWord** - configure searching by only first characters in the words
-
-### Select settings
-
-- **addOption** - append option to the list
-- **choose** - choose option by index
-- **close** - close the list
-- **open** - open the list
-- **toogle** - toogle the list
-
-### Select callbacks
-
-- **onChoose** - callback on choose in the list
-- **onReady** - callback on ready the list
-
-### How to use
+## How to use
 
 html:
 
@@ -56,55 +8,140 @@ html:
 
 JavaScript:
 
-	$(selector).inputDecor(type, settings)
+    $(selector).inputDecor(type, settings)
+	
+Also inputDecor has its own API with which you can affect the individual elements and group:
+	
+    $.inputDecor(selector).method();
+    
+Example:
 
-> Select decorator also support grouping options ( It work only for "ul" elements ).  
-> For using it just add "data-group" attribute in the "li" element and create "ul" list inside.  
-> In JavaScript (for using addOption method) - specify array of childs in object of settings as you can see below.
+```js
+$.inputDecor('#target').find("option 1");
+```
 
-### Examples
+## File settings
+
+| setting     |  attribute       |  description                                    | default                  | 
+|-------------|:-----------------|-------------------------------------------------|:------------------------:|
+| placeholder | data-placeholder | adds text to button                             | "Select the file"        |
+| unselected  | data-unselected  | adds unselected text                            |  "-- is not selected --" |
+| className   | data-class       |  add class to wrapper                           |  none                    |
+| clear       | data-clear       |  adds button wich clear the selection           |  true                    |
+| size        | data-size        |  show sizes of the files                        |  false                   |
+| maxCount    | data-max-count   |  defines max files count on multyfile mode      |  3                       |
+| types       | data-types       |  adds a list of available file types            |  false                   |
+| fileList    | data-file-list   |  displays the selected files in a separate list |  false                   |
+| drop        | data-drop        |  *in developing...*                             |  false                   |
+
+    multifile mode is activated as well as in native html
 
 ```html
-
-	<input data-inputdecor type="checkbox" name="checkbox" value="radio">
-	
-	<input data-inputdecor type="radio" name="radio" value="radio" data-remove="false">
-	
 	<input type="file" name="file" multiple
 		data-inputdecor
-		data-text-button="choose"
-		data-text-unselected="no select"
-		data-class="myclass"
-		data-close="true"
-		data-size="true"
-		data-max-count="3"
+		data-placeholder="Choose"
+		data-size
+		data-file-list
+		data-max-count="5"
+		data-types="gif, jpg, png"
 	>
-	
-	<select
-		data-inputdecor
-		data-rollup="true"
-		data-unselected="true"
-		data-on-choose="someAction"
-		data-class="myclass"
-		data-text-button="Select from"
-		data-text-unselected="-- unselected --"
-	>
-		<option value="1">value 1</option>
-		<option value="2">value 2</option>
-		<option value="3" selected >value 3</option>
-	</select>
+```
 
-	<!--
+**API Methods:**
+- **clear()** - clears list of added files
 
+## Checkbox settings
+
+> have not special options, but support standart attribute checked
+
+**API Methods:**
+- **activate()** - activate checkbox
+- **deactivate()** - deactivate checkbox
+- **toogle()** - toogle checkbox
+
+## Radio settings
+
+| setting |  attribute  |  description               | default | 
+|---------|:------------|----------------------------|:-------:|
+| remove  | data-remove | allows to deactivate radio | false   |
+
+    support standart attribute checked
+
+```html
+<input data-inputdecor type="radio" name="choose" checked value="1">
+<input data-inputdecor type="radio" name="choose" value="2" data-remove >
+<input data-inputdecor type="radio" name="choose" value="3">
+```
+
+**API Methods:**
+- **activate()** - activate radio
+- **deactivate()** - deactivate radio
+- **toogle()** - toogle radio
+
+## Select settings
+
+| setting      |  attribute        |  description                        | default        | 
+|--------------|:------------------|-------------------------------------|:--------------:|
+| speed        | data-speed        | animation time in milliseconds      | 250            |
+| rollup       | data-rollup       | adds button which collapse the list | false          |
+| className    | data-class        | adds class to the wrapper           | none           |
+| selectIndex  | data-select-index | index of the selected option        | 250            |
+| unselected   | data-unselected   | adds unselected element to the list | false          |
+| placeholder  | data-placeholder  | defines text to the button          | "Select value" |
+
+    Select decorator also support grouping options ( It work only for "ul" elements ).  
+    Also you can use standart attribute "selected" in option instead "selectIndex" setting.  
+    As the unselected parameter, you can pass true or a string with text to replace the default value
+
+Searching settings:
+
+| setting    |  attribute           |  description                                              | default           | 
+|------------|:--------------------:|:----------------------------------------------------------|:-----------------:|
+| textEmpty  | data-search-empty    | define text to "not found" element                        | "-- not found --" |
+| inButton   | data-search-inbutton | append the search input instead the button                | false             |
+| caseSense  | data-search-case     | configure case sensitivity searching                      | false             |
+| wholeWord  | data-search-whole    | configure whole word searching                            | false             |
+| beginWord  | data-search-begin    | configure searching by only first characters in the words | false             |
+
+    In order to activate the search in the list you need to specify the appropriate setting "search".  
+    If you specify "true", the search will use the default settings or you need to specify an object with settings instead of "true
+
+**Callbacks:**
+
+- **onChoose** - callback on choose in the list (data-on-choose)
+- **onReady** - callback on ready the list (data-on-ready)
+ 
+**API Methods:**
+
+- **choose( index )** - choose option by index in the list
+- **open()** - open the list
+- **close()** - close the list
+- **toogle()** - toogle the list
+- **find( value )** - find the value in the list. Returns array of found values
+- **count()** - returns count of options in the list
+- **addOption( settings )** - append option to the list. Settings: value, (html | text), childs (only for "ul" method)
+
+```html
+<select
+	data-inputdecor
+	data-rollup
+	data-unselected
+	data-on-choose="console.log(e)"
+	data-placeholder="Select from the list"
+	data-unselected="-- unselected --"
+>
+	<option value="1">value 1</option>
+	<option value="2">value 2</option>
+	<option value="3" selected >value 3</option>
+</select>
+
+<!--
 	ALSO YOU CAN USE
-
+	
 	<ul data-inputdecor data-attributes ... >
-
 		<li value="1" ><a href="#">value 1</a></li>
 		<li value="2" selected ><a href="#">value 2</a></li>
-
 		...
-
 		<li value="N" data-group="title or link" [value] >
 			<ul>
 				<li value="N.1"><a href="#">value N.1</a></li>
@@ -112,26 +149,18 @@ JavaScript:
 				<li value="N.3"><a href="#">value N.3</a></li>
 			</ul>
 		</li>
-
 	</ul>
-
 	-->
-	
 ```
-<a name="childs"></a>
-
 ```js
-
 $(".some").inputDecor("select", {
 	unselected : true,
 	rollup : true,
-	search :
-	{
+	search : {
 		inButton  : true,
 		beginWord : true
 	},
-	onChoose : function(e)
-	{
+	onChoose : function(e) {
 		console.log(e);
 	}
 });
@@ -141,23 +170,19 @@ var target = $.inputDecor('#target'),
 
 target.addOption({
 	html   : "<a href='#'>option " + count + "</a>",
-	childs : [
-	{
+	childs : [{
 		html   : "<a href='#'>option " + count +".1</a>",
 		text   : "test_1",
 		value  : 1,
-	},
-	{
+	}, {
 		html   : "<a href='#'>option " + count +".2</a>",
 		text   : "test_2",
 		value  : 2,
-	}
-	]
+	}]
 });
-
 ```
 
-### Result
+## Result
 
 ![result](img/result.jpg)
 

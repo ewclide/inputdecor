@@ -9,10 +9,10 @@ export class List
 
 		this.length = 0;
 		this.options = [];
-		this.onChoose = function(){};
+		this.onChoose;
 		this.$element;
 		this.$allElements;
-		this.selected = settings.selected || 0;
+		this.selectIndex = settings.selectIndex || 0;
 		
 		this._create();
 	}
@@ -57,7 +57,7 @@ export class List
 				unselected = '<li class="unselected">' + unselected + '</li>';
 
 			this.$source.prepend(unselected);
-			this.selected++;
+			this.selectIndex++;
 		}
 
 		this.options = this._buildOptions();
@@ -71,6 +71,8 @@ export class List
 
 			self._choose(target);
 		});
+
+		this.choose(this.selectIndex);
 	}
 
 	_choose(target)
@@ -78,7 +80,7 @@ export class List
 		var data = {
 			value : target.value,
 			text  : target.text,
-			unselected : target.text === this.settings.unselected ? true : false
+			unselected : target.text === this.settings.unselected
 		}
 
 		this.$allElements.removeAttr("data-selected");
@@ -87,7 +89,8 @@ export class List
 		this.$source[0].selectedIndex = target.index;
 		this.$source.change();
 
-		this.onChoose(data);
+		if (typeof this.onChoose == "function")
+			this.onChoose(data);
 
 		return data;
 	}
@@ -102,7 +105,6 @@ export class List
 
 		if (options.length)
 			options.each(function(){
-
 				var data,
 					option = $(this),
 					group = option.attr("data-group");
@@ -119,18 +121,14 @@ export class List
 
 					data.childs = childs;
 				}
-				else
-				{
-					data = self._getOptionData(option);
-				}
+				else data = self._getOptionData(option);
 
 				result.push(data);
 			});
 
 		this.length = result.length;
 
-		if (result.length) return result;
-		else return false;
+		return result.length ? result : false;
 	}
 
 	_getOptionData($option, type, html)
@@ -167,8 +165,7 @@ export class List
 		if (data.className)
 			$li.addClass(data.className);
 
-		if (data.html) $li.html(data.html);
-		else $li.text(data.text);
+		data.html ? $li.html(data.html) : $li.text(data.text);
 
 		$li[0]._decorTarget = option;
 

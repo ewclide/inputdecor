@@ -12,18 +12,8 @@ var output = {},
 		"toogle",
 		"activate",
 		"deactivate",
-		"clear",
-		"addTypes",
-		"setup"
+		"clear"
 	];
-
-setAPI(output, methods);
-
-$.inputDecor = function(query)
-{
-	output.$elements = $(query);
-	return output;
-}
 
 $.fn.inputDecor = function(type, settings)
 {
@@ -33,3 +23,11 @@ $.fn.inputDecor = function(type, settings)
 }
 
 $('[data-inputdecor]').inputDecor();
+
+setAPI(output, methods);
+
+$.inputDecor = function(query)
+{
+	output.$elements = $(query);
+	return output;
+}

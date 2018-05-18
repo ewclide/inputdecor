@@ -22,18 +22,6 @@ export function getOption(attr, $element, setting, def, prefix = "data-")
 	return value;
 }
 
-export function checkBoolean(value, def)
-{
-	if (typeof value == "string")
-		if (value == "true") value = true;
-	else if (value == "false") value = false;
-	else value = def;
-
-	else if (value == undefined)
-		value = def;
-	return value;
-}
-
 export function wrapCallBack(callback)
 {
 	if (typeof callback == "string")

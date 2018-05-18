@@ -77,7 +77,6 @@ Object.defineProperty(exports, "__esModule", {
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 exports.getOption = getOption;
-exports.checkBoolean = checkBoolean;
 exports.wrapCallBack = wrapCallBack;
 var DOC = exports.DOC = {
 	create: function create(tag, attr, css) {
@@ -97,13 +96,6 @@ function getOption(attr, $element, setting, def) {
 
 	if (value === "") value = true;else if (value === "false") value = false;
 
-	return value;
-}
-
-function checkBoolean(value, def) {
-	if (typeof value == "string") {
-		if (value == "true") value = true;else if (value == "false") value = false;else value = def;
-	} else if (value == undefined) value = def;
 	return value;
 }
 
@@ -192,14 +184,7 @@ var _decorator = __webpack_require__(3);
 var _api = __webpack_require__(10);
 
 var output = {},
-    methods = ["find", "choose", "addOption", "count", "open", "close", "toogle", "activate", "deactivate", "clear", "addTypes", "setup"];
-
-(0, _api.setAPI)(output, methods);
-
-$.inputDecor = function (query) {
-	output.$elements = $(query);
-	return output;
-};
+    methods = ["find", "choose", "addOption", "count", "open", "close", "toogle", "activate", "deactivate", "clear"];
 
 $.fn.inputDecor = function (type, settings) {
 	this.each(function () {
@@ -208,6 +193,13 @@ $.fn.inputDecor = function (type, settings) {
 };
 
 $('[data-inputdecor]').inputDecor();
+
+(0, _api.setAPI)(output, methods);
+
+$.inputDecor = function (query) {
+	output.$elements = $(query);
+	return output;
+};
 
 /***/ }),
 /* 3 */
@@ -267,7 +259,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var Checkbox = exports.Checkbox = function (_Box) {
 	_inherits(Checkbox, _Box);
 
-	function Checkbox($element) {
+	function Checkbox($element, type, settings) {
 		_classCallCheck(this, Checkbox);
 
 		var _this = _possibleConstructorReturn(this, (Checkbox.__proto__ || Object.getPrototypeOf(Checkbox)).call(this));
@@ -323,10 +315,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var Radio = exports.Radio = function (_Box) {
 	_inherits(Radio, _Box);
 
-	function Radio($element) {
+	function Radio($element, type, settings) {
 		_classCallCheck(this, Radio);
 
-		var _this = _possibleConstructorReturn(this, (Radio.__proto__ || Object.getPrototypeOf(Radio)).call(this));
+		var _this = _possibleConstructorReturn(this, (Radio.__proto__ || Object.getPrototypeOf(Radio)).call(this, type));
 
 		var self = _this;
 
@@ -351,7 +343,7 @@ var Radio = exports.Radio = function (_Box) {
 				var checked = self.$element.prop("checked") || self.$element.attr("checked");
 				if (checked) return true;else return false;
 			}();
-			this.remove = (0, _func.checkBoolean)(self.$element.attr("data-remove"), false);
+			this.remove = (0, _func.getOption)("remove", $element, undefined, false);
 			this.radios = $('input[type=radio][name="' + this.name + '"]');
 			this.$element[0].inputstyler = this;
 		}
@@ -472,6 +464,14 @@ var Select = exports.Select = function () {
 				unselected: settings.unselected
 			});
 
+			this.list.onChoose = function (e) {
+				self._update(e);
+
+				if (typeof self.settings.onChoose == "function") self.settings.onChoose(e);
+
+				self.close();
+			};
+
 			// create search
 			if (settings.search) this.search = new _search.Search(this.list, settings.search);
 
@@ -516,15 +516,7 @@ var Select = exports.Select = function () {
 			});
 
 			// first select
-			this.list.choose(this.list.selected);
-
-			this.list.onChoose = function (e) {
-				self._update(e);
-
-				if (typeof self.settings.onChoose == "function") self.settings.onChoose(e);
-
-				self.close();
-			};
+			// this.list.choose(this.list.selected);
 
 			if (self.settings.onReady) self.settings.onReady(this);
 		}
@@ -625,10 +617,10 @@ var List = exports.List = function () {
 
 		this.length = 0;
 		this.options = [];
-		this.onChoose = function () {};
+		this.onChoose;
 		this.$element;
 		this.$allElements;
-		this.selected = settings.selected || 0;
+		this.selectIndex = settings.selectIndex || 0;
 
 		this._create();
 	}
@@ -668,7 +660,7 @@ var List = exports.List = function () {
 				if (this.settings.type == "select") unselected = '<option class="unselected">' + unselected + '</option>';else if (this.settings.type == "ul") unselected = '<li class="unselected">' + unselected + '</li>';
 
 				this.$source.prepend(unselected);
-				this.selected++;
+				this.selectIndex++;
 			}
 
 			this.options = this._buildOptions();
@@ -681,6 +673,8 @@ var List = exports.List = function () {
 
 				self._choose(target);
 			});
+
+			this.choose(this.selectIndex);
 		}
 	}, {
 		key: "_choose",
@@ -688,7 +682,7 @@ var List = exports.List = function () {
 			var data = {
 				value: target.value,
 				text: target.text,
-				unselected: target.text === this.settings.unselected ? true : false
+				unselected: target.text === this.settings.unselected
 			};
 
 			this.$allElements.removeAttr("data-selected");
@@ -697,7 +691,7 @@ var List = exports.List = function () {
 			this.$source[0].selectedIndex = target.index;
 			this.$source.change();
 
-			this.onChoose(data);
+			if (typeof this.onChoose == "function") this.onChoose(data);
 
 			return data;
 		}
@@ -711,7 +705,6 @@ var List = exports.List = function () {
 			this.$element._decorLength = 0;
 
 			if (options.length) options.each(function () {
-
 				var data,
 				    option = $(this),
 				    group = option.attr("data-group");
@@ -724,16 +717,14 @@ var List = exports.List = function () {
 					});
 
 					data.childs = childs;
-				} else {
-					data = self._getOptionData(option);
-				}
+				} else data = self._getOptionData(option);
 
 				result.push(data);
 			});
 
 			this.length = result.length;
 
-			if (result.length) return result;else return false;
+			return result.length ? result : false;
 		}
 	}, {
 		key: "_getOptionData",
@@ -768,7 +759,7 @@ var List = exports.List = function () {
 
 			if (data.className) $li.addClass(data.className);
 
-			if (data.html) $li.html(data.html);else $li.text(data.text);
+			data.html ? $li.html(data.html) : $li.text(data.text);
 
 			$li[0]._decorTarget = option;
 
@@ -958,26 +949,14 @@ var InputFile = exports.InputFile = function () {
 		};
 
 		this.errors = {
-			maxCount: (0, _func.getOption)("MaxCountError", $source, settings, "Max count of files - "),
-			types: (0, _func.getOption)("TypesError", $source, settings, "You can only select files of types - ")
+			maxCount: (0, _func.getOption)("maxcount-error", $source, settings.MaxCountError, "Max count of files - "),
+			types: (0, _func.getOption)("types-error", $source, settings.TypesError, "You can only select files of types - ")
 		};
 
 		this._create(this.settings);
 	}
 
 	_createClass(InputFile, [{
-		key: "addTypes",
-		value: function addTypes(types) {
-			this.settings.types.concat(types);
-		}
-	}, {
-		key: "setup",
-		value: function setup(settings) {
-			for (var i in settings) {
-				if (i in this.settings) this.settings[i] = settings[i];else if (i in this.errors) this.errors[i] = settings[i];
-			}
-		}
-	}, {
 		key: "_create",
 		value: function _create(settings) {
 			var self = this,
