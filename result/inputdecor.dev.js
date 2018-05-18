@@ -662,7 +662,7 @@ var List = exports.List = function () {
 				if (this.settings.type == "select") unselected = '<option class="unselected">' + unselected + '</option>';else if (this.settings.type == "ul") unselected = '<li class="unselected">' + unselected + '</li>';
 
 				this.$source.prepend(unselected);
-				this.selectIndex++;
+				if (this.selectIndex) this.selectIndex++;
 			}
 
 			this.options = this._buildOptions();

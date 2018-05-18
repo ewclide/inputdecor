@@ -60,7 +60,7 @@ export class List
 				unselected = '<li class="unselected">' + unselected + '</li>';
 
 			this.$source.prepend(unselected);
-			this.selectIndex++;
+			if (this.selectIndex) this.selectIndex++;
 		}
 
 		this.options = this._buildOptions();
