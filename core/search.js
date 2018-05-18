@@ -41,7 +41,9 @@ export class Search
 	{
 		var found = this._find(this.options, text);
 
-		!found.length
+		console.log(found)
+
+		!found
 		? this.$elements.empty.show()
 		: this.$elements.empty.hide();
 
@@ -67,8 +69,8 @@ export class Search
 
 		this.$elements.clear.click(function(e){
 			e.preventDefault();
+			console.log(e)
 			self.clear(true);
-			self.find("");
 		});
 
 		this.$elements.main.append(
@@ -79,28 +81,28 @@ export class Search
 
 	_find(options, text)
 	{
-		var self = this, result = [];
+		var count = 0;
 
-		options.forEach(function(option){
+		options.forEach( option => {
 
 			var inside;
 
-			if (option.childs) inside = self._find(option.childs, text);
+			if (option.childs) inside = this._find(option.childs, text);
+			if (inside) count += inside;
 
-			if (inside) result.concat(inside);
-
-			if (!self._compare(option.text, text))
+			if (!this._compare(option.text, text))
 			{
 				if (!inside) option.$element.hide();
 			}
 			else
 			{
-				result.push(option.index);
+				count++;
+				// result.push(option.index);
 				option.$element.show();
 			}
 		});
 
-		return result;
+		return count;
 	}
 
 	_compare(value_1, value_2)

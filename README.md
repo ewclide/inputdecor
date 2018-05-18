@@ -93,7 +93,7 @@ $.inputDecor('#target').find("option 1");
     Also you can use standart attribute "selected" in option instead "selectIndex" setting.  
     As the unselected parameter, you can pass true or a string with text to replace the default value
 
-Searching settings:
+**Searching settings:**
 
 | setting    |  attribute           |  description                                              | default           | 
 |------------|:--------------------:|:----------------------------------------------------------|:-----------------:|
@@ -117,7 +117,7 @@ Searching settings:
 - **open()** - open the list
 - **close()** - close the list
 - **toogle()** - toogle the list
-- **find( value )** - find the value in the list. Returns array of found values
+- **find( value )** - find the value in the list
 - **count()** - returns count of options in the list
 - **addOption( { value, (html | text), childs } )** - append option to the list.
 

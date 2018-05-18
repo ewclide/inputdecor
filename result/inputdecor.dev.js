@@ -835,7 +835,9 @@ var Search = exports.Search = function () {
 		value: function find(text) {
 			var found = this._find(this.options, text);
 
-			!found.length ? this.$elements.empty.show() : this.$elements.empty.hide();
+			console.log(found);
+
+			!found ? this.$elements.empty.show() : this.$elements.empty.hide();
 
 			this.setValue(text, false);
 
@@ -859,8 +861,8 @@ var Search = exports.Search = function () {
 
 			this.$elements.clear.click(function (e) {
 				e.preventDefault();
+				console.log(e);
 				self.clear(true);
-				self.find("");
 			});
 
 			this.$elements.main.append(this.$elements.input, this.$elements.clear);
@@ -868,26 +870,27 @@ var Search = exports.Search = function () {
 	}, {
 		key: "_find",
 		value: function _find(options, text) {
-			var self = this,
-			    result = [];
+			var _this = this;
+
+			var count = 0;
 
 			options.forEach(function (option) {
 
 				var inside;
 
-				if (option.childs) inside = self._find(option.childs, text);
+				if (option.childs) inside = _this._find(option.childs, text);
+				if (inside) count += inside;
 
-				if (inside) result.concat(inside);
-
-				if (!self._compare(option.text, text)) {
+				if (!_this._compare(option.text, text)) {
 					if (!inside) option.$element.hide();
 				} else {
-					result.push(option.index);
+					count++;
+					// result.push(option.index);
 					option.$element.show();
 				}
 			});
 
-			return result;
+			return count;
 		}
 	}, {
 		key: "_compare",
