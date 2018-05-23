@@ -390,8 +390,6 @@ var Select = exports.Select = function () {
 	function Select($source, type, settings) {
 		_classCallCheck(this, Select);
 
-		var offset = window.innerHeight - $source.offset().top;
-
 		this.$source = $source.hide();
 		this.active = false;
 
@@ -426,12 +424,12 @@ var Select = exports.Select = function () {
 		this.value = $source.val();
 		this.text = this.settings.placeholder;
 
-		this._create(offset);
+		this._create();
 	}
 
 	_createClass(Select, [{
 		key: '_create',
-		value: function _create(offset) {
+		value: function _create() {
 			var self = this,
 			    $elements,
 			    settings = this.settings;
@@ -452,8 +450,7 @@ var Select = exports.Select = function () {
 					"width": "100%",
 					"transform": "scaleY(0)",
 					"transform-origin": "100% 0",
-					"transition": settings.speed + "ms",
-					"z-index": offset / 2
+					"transition": settings.speed + "ms"
 				})
 			};
 

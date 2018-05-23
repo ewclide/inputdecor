@@ -6,8 +6,6 @@ export class Select
 {
 	constructor($source, type, settings)
 	{
-		var offset = window.innerHeight - $source.offset().top;
-
 		this.$source = $source.hide();
 		this.active = false;
 
@@ -44,10 +42,10 @@ export class Select
 		this.value = $source.val();
 		this.text = this.settings.placeholder;
 
-		this._create(offset);
+		this._create();
 	}
 
-	_create(offset)
+	_create()
 	{
 		var self = this,
 			$elements,
@@ -72,8 +70,7 @@ export class Select
 	        		"width" : "100%",
 	        		"transform" : "scaleY(0)",
 	        		"transform-origin" : "100% 0",
-	        		"transition" : settings.speed + "ms",
-	        		"z-index"  : offset / 2
+	        		"transition" : settings.speed + "ms"
 	        	}
 	        )
         }
