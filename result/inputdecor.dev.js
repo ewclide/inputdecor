@@ -179,26 +179,32 @@ var Box = exports.Box = function () {
 "use strict";
 
 
-var _decorator = __webpack_require__(3);
-
-var _api = __webpack_require__(10);
-
-var output = {},
-    methods = ["find", "choose", "addOption", "count", "open", "close", "toogle", "activate", "deactivate", "clear"];
+var _decorate = __webpack_require__(3);
 
 $.fn.inputDecor = function (settings) {
 	this.each(function () {
-		this._decorator = new _decorator.Decorator($(this), settings);
+		this._decorator = (0, _decorate.decorate)($(this), settings);
 	});
 };
 
 $('[data-inputdecor]').inputDecor();
 
-(0, _api.setAPI)(output, methods);
-
 $.inputDecor = function (query) {
-	output.$elements = $(query);
-	return output;
+	return {
+		invoke: function invoke(name, data) {
+			var result = [];
+
+			$(query).each(function () {
+				var res;
+
+				if (this._decorator && typeof this._decorator[name] == "function") res = this._decorator[name](data);
+
+				if (res !== undefined) result.push(this._decorator[name](data));
+			});
+
+			return result.length == 1 ? result[0] : result;
+		}
+	};
 };
 
 /***/ }),
@@ -211,7 +217,7 @@ $.inputDecor = function (query) {
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
-exports.Decorator = undefined;
+exports.decorate = decorate;
 
 var _checkbox = __webpack_require__(4);
 
@@ -221,17 +227,13 @@ var _select = __webpack_require__(6);
 
 var _file = __webpack_require__(9);
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Decorator = exports.Decorator = function Decorator($element) {
+function decorate($element) {
 	var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-	_classCallCheck(this, Decorator);
 
 	var type = $element.attr("type") || $element[0].tagName.toLowerCase();
 
-	if (type == "ul" || type == "select") this.input = new _select.Select($element, type, settings);else if (type == "checkbox") this.input = new _checkbox.Checkbox($element, settings);else if (type == "radio") this.input = new _radio.Radio($element, settings);else if (type == "file") this.input = new _file.InputFile($element, settings);
-};
+	if (type == "ul" || type == "select") return new _select.Select($element, type, settings);else if (type == "checkbox") return new _checkbox.Checkbox($element, settings);else if (type == "radio") return new _radio.Radio($element, settings);else if (type == "file") return new _file.InputFile($element, settings);
+}
 
 /***/ }),
 /* 4 */
@@ -805,48 +807,6 @@ var Search = exports.Search = function () {
 	}
 
 	_createClass(Search, [{
-		key: "getValue",
-		value: function getValue() {
-			return this.$elements.input.val();
-		}
-	}, {
-		key: "setValue",
-		value: function setValue(str) {
-			var blur = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-
-			this.$elements.input.val(str);
-
-			str ? this.$elements.clear.show() : this.$elements.clear.hide();
-
-			if (blur) {
-				this.$elements.clear.hide();
-				this.$elements.input.blur();
-			}
-		}
-	}, {
-		key: "clear",
-		value: function clear(focus) {
-			focus ? this.$elements.input.focus().val("") : this.$elements.input.val("").blur();
-
-			this.options.forEach(function (option) {
-				option.childs && option.childs.forEach(function (child) {
-					return child.$element.show();
-				});
-				option.$element.show();
-			});
-		}
-	}, {
-		key: "find",
-		value: function find(text) {
-			var found = this._find(this.options, text);
-
-			!found ? this.$elements.empty.show() : this.$elements.empty.hide();
-
-			this.setValue(text, false);
-
-			return found ? true : false;
-		}
-	}, {
 		key: "_create",
 		value: function _create() {
 			var self = this;
@@ -868,6 +828,51 @@ var Search = exports.Search = function () {
 			});
 
 			this.$elements.main.append(this.$elements.input, this.$elements.clear);
+		}
+	}, {
+		key: "getValue",
+		value: function getValue() {
+			return this.$elements.input.val();
+		}
+	}, {
+		key: "setValue",
+		value: function setValue(str) {
+			var blur = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+
+			this.$elements.input.val(str);
+
+			str ? this.$elements.clear.show() : this.$elements.clear.hide();
+
+			if (blur) {
+				this.$elements.clear.hide();
+				this.$elements.input.blur();
+			}
+		}
+	}, {
+		key: "clear",
+		value: function clear(focus) {
+			this.$elements.empty.hide();
+			this.$elements.clear.hide();
+
+			focus ? this.$elements.input.focus().val("") : this.$elements.input.val("").blur();
+
+			this.options.forEach(function (option) {
+				option.childs && option.childs.forEach(function (child) {
+					return child.$element.show();
+				});
+				option.$element.show();
+			});
+		}
+	}, {
+		key: "find",
+		value: function find(text) {
+			var found = this._find(this.options, text);
+
+			!found ? this.$elements.empty.show() : this.$elements.empty.hide();
+
+			this.setValue(text, false);
+
+			return found ? true : false;
 		}
 	}, {
 		key: "_find",
@@ -1066,35 +1071,6 @@ var InputFile = exports.InputFile = function () {
 
 	return InputFile;
 }();
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-exports.setAPI = setAPI;
-function _callMethod(target, name, data) {
-	var result = [];
-
-	target.$elements.each(function () {
-		if (this._decorator && typeof this._decorator.input[name] == "function") result.push(this._decorator.input[name](data));
-	});
-
-	return result.length == 1 ? result[0] : result;
-}
-
-function setAPI(target, methods) {
-	methods.forEach(function (name) {
-		target[name] = function (data) {
-			return _callMethod(target, name, data);
-		};
-	});
-}
 
 /***/ })
 /******/ ]);

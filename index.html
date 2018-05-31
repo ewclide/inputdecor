@@ -63,7 +63,30 @@
 		<option value="value 5">value 5</option>
 	</select>
 	<br><br>
+
+	<select id="test">
+		<option value="asd">asd</option>
+		<option value="zxc" selected>zxc</option>
+		<option value="ASD">ASD</option>
+		<option value="zxcasd">zxcasd</option>
+		<option value="qwe">qwe</option>
+	</select>
+
 	<script src="result/inputdecor.dev.js"></script>
+	<script>
+		$("#test").inputDecor({
+			placeholder : "Test search placeholder",
+			unselected : "-- nothing --",
+			search : {
+				empty : "-- nothing founded --",
+				inButton  : true,
+				beginWord : true
+			},
+			onChoose : function(e){
+				console.log(e)
+			}
+		})
+	</script>
 	<!-- <script src="result/inputdecor.min.js"></script> -->
 	<!-- <script src="js/common.js"></script> -->
 </body>

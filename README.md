@@ -10,14 +10,15 @@ JavaScript:
 
     $(selector).inputDecor(settings)
 	
-Also script has its own API with which you can affect the individual elements and group:
+You can also affect individual elements or groups of them using the Invoke method.  
+The first parameter is the name of the method, the second (optional) is the data:
 	
-    $.inputDecor(selector).method()
+    $.inputDecor(selector).invoke(name, data)
     
 Example:
 
 ```js
-$.inputDecor('#target').find("option 1");
+$.inputDecor('#target').invoke("find", "option 1");
 ```
 
 ## File settings
@@ -160,7 +161,7 @@ If you specify "true", the search will use the default settings or you need to s
 	-->
 ```
 ```js
-$(".some").inputDecor("select", {
+$(".some").inputDecor({
 	unselected : true,
 	rollup : true,
 	search : {
@@ -173,9 +174,9 @@ $(".some").inputDecor("select", {
 });
 
 var target = $.inputDecor('#target'),
-	count = target.count();
+	count = target.invoke("count");
 
-target.addOption({
+target.invoke("addOption", {
 	html   : "<a href='#'>option " + count + "</a>",
 	childs : [{
 		html   : "<a href='#'>option " + count +".1</a>",

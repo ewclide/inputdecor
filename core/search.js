@@ -10,49 +10,6 @@ export class Search
 		this._create();
 	}
 
-	getValue()
-	{
-		return this.$elements.input.val();
-	}
-
-	setValue(str, blur = true)
-	{
-		this.$elements.input.val(str);
-
-		str ? this.$elements.clear.show() : this.$elements.clear.hide();
-
-		if (blur)
-		{
-			this.$elements.clear.hide();
-			this.$elements.input.blur();
-		}
-	}
-
-	clear(focus)
-	{
-		focus
-		? this.$elements.input.focus().val("")
-		: this.$elements.input.val("").blur();
-
-		this.options.forEach( option => {
-			option.childs && option.childs.forEach( child => child.$element.show() );
-			option.$element.show();
-		})
-	}
-
-	find(text)
-	{
-		var found = this._find(this.options, text);
-
-		!found
-		? this.$elements.empty.show()
-		: this.$elements.empty.hide();
-
-		this.setValue(text, false);
-
-		return found ? true : false;
-	}
-
 	_create()
 	{
 		var self = this;
@@ -77,6 +34,52 @@ export class Search
 			this.$elements.input,
 			this.$elements.clear
 		);
+	}
+
+	getValue()
+	{
+		return this.$elements.input.val();
+	}
+
+	setValue(str, blur = true)
+	{
+		this.$elements.input.val(str);
+
+		str ? this.$elements.clear.show() : this.$elements.clear.hide();
+
+		if (blur)
+		{
+			this.$elements.clear.hide();
+			this.$elements.input.blur();
+		}
+	}
+
+	clear(focus)
+	{
+		this.$elements.empty.hide();
+		this.$elements.clear.hide();
+
+		focus
+		? this.$elements.input.focus().val("")
+		: this.$elements.input.val("").blur();
+
+		this.options.forEach( option => {
+			option.childs && option.childs.forEach( child => child.$element.show() );
+			option.$element.show();
+		})
+	}
+
+	find(text)
+	{
+		var found = this._find(this.options, text);
+
+		!found
+		? this.$elements.empty.show()
+		: this.$elements.empty.hide();
+
+		this.setValue(text, false);
+
+		return found ? true : false;
 	}
 
 	_find(options, text)
