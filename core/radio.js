@@ -1,54 +1,44 @@
-import { getOption } from './func';
 import { Box } from './box';
+import { publish } from './publish';
 
-export class Radio extends Box
+class LocRadio extends Box
 {
-	constructor($element, settings)
+	constructor(source, settings)
 	{
 		super();
 
-		var self = this;
+		this.id = Math.random();
+		this.source = source;
+		this.remove = settings.remove || source.getAttribute("data-remove") !== null;
 
-		this.init($element);
+		this.init();
 		this.create("radio");
-		this.button.unbind("click");
-		this.button.bind("click", function(){
 
-			if (!self.remove && !self.active)
-				self.activate();
-
-			else if (self.remove)
-				self.toogle();
-		});
+		this.button.onclick = () => {
+			if (!this.remove && !this.active) this.switchOn();
+			else if (this.remove) this.toggle();
+		};
 	}
 
-	init($element)
+	init()
 	{
-		var self = this;
-		this.$element = $element;
-		this.name = $element.attr("name");
-		this.value = $element.val();
-		this.active = (function(){
-			var checked = self.$element.prop("checked") || self.$element.attr("checked");
-			if (checked) return true;
-			else return false;
-		})();
-		this.remove = getOption("remove", $element, undefined, false);
-		this.radios = $('input[type=radio][name="' + this.name + '"]');
-		this.$element[0].inputstyler = this;
+		this.name = this.source.name;
+		this.active = this.source.checked;
+		this._list = document.querySelectorAll("input[type=radio][name='" + this.name + "']");
+		this.source._inputDecor = this;
 	}
 
-	deactiveOther(current)
+	switchOn()
 	{
-		this.radios.each(function(){
-			if (this.inputstyler !== current)
-				this.inputstyler.deactivate();
-		});
-	}
+		for (var i = 0; i < this._list.length; i++)
+			this._list[i]._inputDecor.switchOff();
 
-	activate()
-	{
-		super.activate();
-		this.deactiveOther(this);
+		super.switchOn();
 	}
 }
+
+export var Radio = publish(
+    LocRadio,
+    ["name", "checked", "value"],
+    ["switchOn", "switchOff", "toggle"]
+);

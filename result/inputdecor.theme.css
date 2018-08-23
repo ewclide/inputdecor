@@ -34,24 +34,24 @@
 .inputdecor-select .list-wrapper .clear {
     margin-right: 10px;
 }
-.inputdecor-select .marker {
-    border-bottom: 1px solid #212121;
-    border-left: 1px solid #212121;
-    width: 6px;
-    height: 6px;
+.inputdecor-select .label {
+    background: none;
+    width: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.inputdecor-select .label:before {
+    content: "";
+    border-bottom: 2px solid #4e4e4e;
+    border-left: 2px solid #4e4e4e;
+    width: 4px;
+    height: 4px;
     display: block;
     transition: 0.25s;
     transform: rotate(45deg);
 }
-.inputdecor-select .marker {
-    transform: rotate(45deg);
-}
-
-.inputdecor-select .label {
-	background: none;
-	padding-right: 10px;
-}
-.inputdecor-select .label.active .marker {
+.inputdecor-select .label.active:before {
     transform: rotate(-45deg);
 }
 .inputdecor-select .list-wrapper {
@@ -70,6 +70,9 @@
     cursor: pointer;
     transition: 0.25s;
 }
+.inputdecor-select .list li.active {
+    background: #f4f4f4;
+}
 .inputdecor-select .unselected {
     color: #8c8c8c;
 }
@@ -83,6 +86,13 @@
 .inputdecor-select .list li.group {
     font-weight: bold;
 }
+.inputdecor-select .list li.child {
+    color: #8c8c8c;
+    padding-left: 30px;
+}
+.inputdecor-select .list li.child a {
+    color: #8c8c8c;
+}
 .inputdecor-select .search .close:after {
     content: "close";
     font-family: icons;
@@ -94,16 +104,6 @@
     cursor: pointer;
 }
 .inputdecor-select .search .close:hover:after {
-    color: #8c8c8c;
-}
-.inputdecor-select .list li.group {
-    font-weight: bold;
-}
-.inputdecor-select .list li.child {
-    color: #8c8c8c;
-}
-.inputdecor-select .list li.child a {
-    padding-left: 20px;
     color: #8c8c8c;
 }
 .inputdecor-select .list {
@@ -156,6 +156,21 @@
 }
 .inputdecor-select .search .clear:after {
     transform: rotate(45deg);
+}
+.inputdecor-select.empty .button-wrapper,
+.inputdecor-select.single .button-wrapper {
+    border-color: #d9d9d9;
+}
+.inputdecor-select.empty .button-wrapper > *,
+.inputdecor-select.single .button-wrapper > * {
+    cursor: auto;
+}
+.inputdecor-select.empty .label:before,
+.inputdecor-select.single .label:before {
+    border-color: #b9b9b9;
+}
+.inputdecor-select.empty .button {
+    color: #a0a0a0;
 }
 .inputdecor-checkbox .label {
     border-bottom: 3px solid #25c6b0;
@@ -284,8 +299,9 @@
 }
 .inputdecor-file .files-list .file .name {
     color: #555555;
-    padding: 5px 10px;
+    padding: 7px 12px;
     display: inline-block;
+    font-size: 12px;
 }
 .inputdecor-file .files-list .file .size {
     color: #979797;

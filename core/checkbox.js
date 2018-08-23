@@ -1,24 +1,20 @@
-import {Box} from './box';
+import { Box } from './box';
+import { publish } from './publish';
 
-export class Checkbox extends Box
+class LocCheckbox extends Box
 {
-	constructor($element, settings)
+	constructor(source, settings)
 	{
 		super();
-		this.init($element);
+		this.source = source;
+		this.name = settings.name || this.source.name;
+		this.active = this.source.checked
 		this.create("checkbox");
 	}
-
-	init($element)
-	{
-		var self = this;
-		this.$element = $element;
-		this.name = $element.attr("name");
-		this.value = $element.val();
-		this.active = (function(){
-			var checked = self.$element.prop("checked") || self.$element.attr("checked");
-			if (checked) return true;
-			else return false;
-		})();
-	}
 }
+
+export var Checkbox = publish(
+    LocCheckbox,
+    ["name", "checked", "value"],
+    ["switchOn", "switchOff", "toggle"]
+);

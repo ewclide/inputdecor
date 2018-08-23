@@ -1,31 +1,66 @@
-import { decorate } from './decorate';
+import { decorate, decorateNew } from './decorate';
 
-$.fn.inputDecor = function(settings)
+var instances = {}
+
+class InputDecor
 {
-	this.each(function(){
-		this._decorator = decorate($(this), settings);
-	});
-}
+	constructor(query, settings = {})
+	{
+		this.ids = [];
 
-$('[data-inputdecor]').inputDecor();
+		var list = document.querySelectorAll(query);
 
-$.inputDecor = function(query)
-{
-	return {
-		invoke : function(name, data)
+		for (var i = 0; i < list.length; i++)
 		{
-			var result = [];
+			let item = list[i],
+				id = item.getAttribute("id") || Math.random(),
+				instance = decorate(item, settings);
 
-			$(query).each(function(){
-				var res;
-				
-				if (this._decorator && typeof this._decorator[name] == "function")
-					res = this._decorator[name](data);
+			instances[id] = instance;
 
-				if (res !== undefined) result.push(this._decorator[name](data));
-			});
-
-			return result.length == 1 ? result[0] : result;
+			this.ids.push(id);
 		}
+
+		if (list.length == 1)
+			return instances[this.ids[0]];
+	}
+
+	evoke(method, args)
+	{
+		var result = [];
+
+		this.ids.forEach( id => {
+
+			let value, obj = instances[id];
+
+			if (obj && typeof obj[method] == "function")
+				value = obj[method].apply(obj, args);
+
+			if (value !== undefined)
+				result.push(value);
+		});
+
+		return result.length == 1 ? result[0] : result;
+	}
+
+	getById(id)
+	{
+		if (this.ids.includes(id) && id in instances)
+			return instances[id];
 	}
 }
+
+InputDecor.getById = function(id)
+{
+	if (id in instances)
+		return instances[id];
+}
+
+var first = new InputDecor("[data-inputdecor]");
+
+window.InputDecor = InputDecor;
+
+// document.body.addEventListener("click", function(e){
+//  var parent = $(e.target).closest(".inputdecor-select");
+//  if (!parent.length) self.close();
+// });

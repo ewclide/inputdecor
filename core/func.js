@@ -1,34 +1,62 @@
-export var DOC = {
-	create : function(tag, attr, css)
+export function createElement(tag, attr, styles, text)
+{
+	var element = document.createElement(tag);
+
+	if (typeof attr == "string")
+		element.classList.add(attr);
+
+	else if (Array.isArray(attr))
+		attr.forEach( cls => cls ? element.classList.add(cls) : false );
+
+	else if (typeof attr == "object")
+		for (var name in attr) element.setAttribute(name, attr[name]);
+
+	if (styles)
 	{
-		var $element = $(document.createElement(tag));
-		if (typeof attr == "string") $element.addClass(attr);
-		else if (typeof attr == "object") $element.attr(attr);
-		if (css) $element.css(css);
-		return $element;
+		for (var name in styles)
+			element.style[name] = styles[name];
 	}
+
+	if (text) element.innerText = text;
+
+	return element;
 }
 
-export function getOption(attr, $element, setting, def, prefix = "data-")
+export function fetchSettings(settings, defaults, attributes, element)
 {
-	var value = $element.attr(prefix + attr);
+	var result = {}
 
-	if (value == undefined)
-		value = setting !== undefined ? setting : def;
+	for (var i in defaults)
+	{
+		if (settings[i] === undefined)
+		{
+			var attr = element ? element.getAttribute('data-' + (attributes[i] || i)) : null,
+				num = +attr;
 
-	if (value === "") value = true;
-	else if (value === "false") value = false;
+			if (attr === "" || attr === "true")
+				attr = true;
 
-	return value;
+			else if (attr === "false")
+				attr = false;
+
+			else if (attr !== null && !isNaN(num))
+				attr = num;
+
+			result[i] = attr !== null ? attr : defaults[i];
+		}
+		else result[i] = settings[i];
+	}
+
+	return result;
 }
 
-export function wrapCallBack(callback)
+export function getCallBack(str)
 {
-	if (typeof callback == "string")
-		return new Function("e", callback);
+	if (typeof str == "string")
+		return new Function("e", str);
 
-	else if (typeof callback == "function")
-		return callback;
+	else if (typeof str == "function")
+		return str;
 
-	else return function(){}
+	else return null;
 }

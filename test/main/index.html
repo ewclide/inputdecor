@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>InputDecor</title>
+
+	<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700" rel="stylesheet">
+	<script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+	<link rel="stylesheet" href="/result/inputdecor.css">
+	<link rel="stylesheet" href="/result/inputdecor.theme.css">
+</head>
+<body>
+
+	<input data-inputdecor type="checkbox" name="checkbox" checked value="1">
+	<br><br>
+
+	<input data-inputdecor type="radio" name="radio" checked value="1">
+	<input data-inputdecor type="radio" name="radio" value="2" data-remove>
+	<input data-inputdecor type="radio" name="radio" value="3">
+	<input data-inputdecor type="radio" name="radio" value="4">
+	<input data-inputdecor type="radio" name="radio" value="5">
+	<br><br>
+
+	<input type="file" name="file" multiple
+		data-inputdecor
+		data-placeholder="Choose"
+		data-class="myclass"
+		data-size
+		data-file-list
+		data-max-count="5"
+		data-types="gif, jpg, png"
+	>
+
+	<br>
+
+	<ul data-inputdecor name="list" data-search data-select-index="4">
+		<li value="value 1"><a href="#">value 1</a></li>
+		<li value="value 2" data-group="v2">value 2</li>
+			<li value="value 2.1" data-child="v2"><a href="#">value 2.1</a></li>
+			<li value="value 2.2" data-child="v2"><a href="#">value 2.2</a></li>
+			<li value="value 2.3" data-child="v2"><a href="#">value 2.3</a></li>
+		<li value="value 3"><a href="#">value 3</a></li>
+		<li value="value 4"><a href="#">value 4</a></li>
+	</ul>
+	<br><br>
+
+	<select
+		id="target"
+		data-inputdecor
+		data-rollup
+		data-unselected
+		data-placeholder="Select the value"
+		data-on-choose="console.log(e)"
+	>
+		<option value="value 1">value 1</option>
+		<option value="value 2" selected>value 2</option>
+		<option value="value 3">value 3</option>
+		<option value="value 4">value 4</option>
+		<option value="value 5">value 5</option>
+	</select>
+	<br><br>
+
+	<select id="test">
+		<option value="asd">asd</option>
+		<option value="zxc" selected>zxc</option>
+		<option value="ASD">ASD</option>
+		<option value="zxcasd">zxcasd</option>
+		<option value="qwe">qwe</option>
+	</select>
+
+	<script src="/result/inputdecor.min.js"></script>
+	<script src="common.js"></script>
+</body>
+</html>

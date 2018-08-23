@@ -1,4 +1,4 @@
-import { DOC } from './func';
+import { createElement } from './func';
 
 export class Box
 {
@@ -6,43 +6,51 @@ export class Box
 
 	create(type)
 	{
-		var self = this
+		this.source.style.display = "none";
 
-		this.$element.hide();
+		this.box = createElement("div", "inputdecor-" + type);
+		this.button = createElement("button", "button");
+		this.label = createElement("span", "label");
 
-		this.box = DOC.create("div", "inputdecor-" + type);
-		this.button = DOC.create("button", "button " + (this.active ? "active" : ""));
-		this.label = DOC.create("span", "label");
+		if (this.active)
+			this.button.classList.add("active");
 
-		this.$element.before(this.box);
-		this.box.append(this.button);
-		this.button.append(this.label);
-		this.box.append(this.$element);
+		this.source.after(this.box);
+		this.box.appendChild(this.button);
+		this.button.appendChild(this.label);
+		this.box.appendChild(this.source);
 
-		this.button.bind("click", function(){
-			self.toogle();
-		});
+		this.button.onclick = () => this.toggle();
 	}
 
-	activate()
+	get value()
 	{
-		this.button.addClass("active");
-		this.$element.prop({ 'checked': true });
-		this.$element.change();
+		return this.source.value;
+	}
+
+	get checked()
+	{
+		return this.active;
+	}
+
+	switchOn()
+	{
+		this.button.classList.add("active");
+		this.source.checked = true;
+		this.source.dispatchEvent(new Event("change"));
 		this.active = true;
 	}
 
-	deactivate()
+	switchOff()
 	{
-		this.button.removeClass("active");
-		this.$element.prop({ 'checked': false });
-		this.$element.change();
+		this.button.classList.remove("active");
+		this.source.checked = false;
+		this.source.dispatchEvent(new Event("change"));
 		this.active = false;
 	}
 
-	toogle()
+	toggle()
 	{
-		if (this.active) this.deactivate();
-		else this.activate();
+		this.active ? this.switchOff() : this.switchOn();
 	}
 }

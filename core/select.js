@@ -1,166 +1,183 @@
-import { DOC, getOption, wrapCallBack } from './func';
+import { createElement, fetchSettings, getCallBack } from './func';
 import { List } from './list';
 import { Search } from './search';
+import { publish } from './publish';
 
-export class Select
+var def = {
+	name         : null,
+	speed        : 250,
+	maxHeight    : 250,
+	rollup       : false,
+	className    : "",
+	sindex       : 0,
+	unselected   : "-- not selected --",
+	textEmpty    : "Nothing to choose",
+	placeholder  : "Select value",
+	search       : false,
+	onChoose     : null,
+	onReady      : null
+}
+
+var attrs = {
+	maxHeight    : "max-height",
+	textEmpty    : "text-empty",
+	className    : "class",
+	onChoose     : "on-choose",
+	onReady      : "on-ready"
+}
+
+var searchDef = {
+	textEmpty : "-- not found --",
+	inButton  : false,
+	caseSense : false,
+	wholeWord : false,
+	beginWord : false
+}
+
+var searchAttrs = {
+	textEmpty : "search-empty",
+	inButton  : "search-inbutton",
+	caseSense : "search-case",
+	wholeWord : "search-whole",
+	beginWord : "search-begin"
+}
+
+class LocSelect
 {
-	constructor($source, type, settings)
+	constructor(source, type, settings)
 	{
-		this.$source = $source.hide();
+		source.style.display = "none";
+
+		settings = fetchSettings(settings, def, attrs, source);
+
+		this.source = source;
+		this.type = type;
 		this.active = false;
+		this.value = source.value;
+		this.text  = settings.placeholder;
+		this.speed  = settings.speed;
+		this.placeholder = settings.placeholder;
+		this.unselected = settings.unselected ? true : false;
+		this.textEmpty = settings.textEmpty;
+		this.onChoose;
+		this.onReady;
 
-		this.settings = {
-			type        : type,
-			name        : $source.attr("name"),
-			speed       : getOption("speed", $source, settings.speed, 250),
-			rollup      : getOption("rollup", $source, settings.rollup, false),
-			className   : getOption("class", $source, settings.className, " "),
-			onChoose    : getOption("on-choose", $source, settings.onChoose, ""),
-			onReady     : getOption("on-ready", $source, settings.onReady, ""),
-			selectIndex : getOption("select-index", $source, settings.selectIndex, 0),
-			unselected  : getOption("unselected", $source, settings.unselected, false),
-			placeholder : getOption("placeholder", $source, settings.placeholder, "Select value")
-		}
+		if (settings.unselected === true)
+			settings.unselected = def.unselected;
 
-		if (this.settings.unselected === true)
-			this.settings.unselected = "-- not selected --";
-
-		var search = getOption("search", $source, settings.search, false);
-
-		if (search)
+		if (settings.search)
 		{
-			if (search === true) search = {}
-			this.settings.search = {
-				textEmpty : getOption("empty", $source, search.textEmpty, "-- not found --", "data-search-"),
-				inButton  : getOption("inbutton", $source, search.inButton, false, "data-search-"),
-				caseSense : getOption("case", $source, search.caseSense, false, "data-search-"),
-				wholeWord : getOption("whole", $source, search.wholeWord, false, "data-search-"),
-				beginWord : getOption("begin", $source, search.beginWord, false, "data-search-")
-			}
+			if (settings.search === true)
+				settings.search = {};
+
+			settings.search = fetchSettings(settings.search, searchDef, searchAttrs, source);
 		}
 
-		this.value = $source.val();
-		this.text = this.settings.placeholder;
-
-		this._create();
+		this._create(settings);
 	}
 
-	_create()
+	_create(settings)
 	{
-		var self = this,
-			$elements,
-			settings = this.settings;
-
-		// wrap callbacks
-		settings.onChoose = wrapCallBack(settings.onChoose);
-		settings.onReady  = wrapCallBack(settings.onReady);
-
-        // create elements
-        this.$elements = {
-        	main       : DOC.create("div", "inputdecor-select " + (settings.className ? settings.className : "" )),
-	        buttonCont : DOC.create("div", "button-wrapper"),
-	        button     : DOC.create("button", "button").text(settings.placeholder),
-	        label      : DOC.create("button", "label"),
-	        hidden     : DOC.create("input", { "type" : "hidden", "name" : settings.name }).val(this.value),
-	       	listCont   : DOC.create(
-	        	"div",
-	        	"list-wrapper",
-	        	{
-	        		"position" : "absolute",
-	        		"width" : "100%",
-	        		"transform" : "scaleY(0)",
-	        		"transform-origin" : "100% 0",
-	        		"transition" : settings.speed + "ms"
-	        	}
-	        )
+        this.elements = {
+        	main       : createElement("div", ["inputdecor-select", settings.className]),
+	        buttonCont : createElement("div", "button-wrapper"),
+	        button     : createElement("button", "button", null, settings.placeholder),
+	        label      : createElement("button", "label"),
+	        listCont   : createElement( "div", "list-wrapper", {
+	        	position        : "absolute",
+	        	minWidth        : "100%",
+	        	transition      : settings.speed + "ms",
+	        	transform       : "scaleY(0)",
+	        	transformOrigin : "100% 0"
+	        })
         }
 
-        $elements = this.$elements;
+        if (this.type == "ul")
+        	this.elements.hidden = createElement("input", {
+	        	type  : "hidden",
+	        	name  : this.source.getAttribute("name") || settings.name,
+	        	value : this.value
+	        })
 
-        // create list
-        this.list = new List(
-        	this.$source,
-	        {
-	        	type : settings.type,
-	        	selected : settings.selected,
-	        	unselected : settings.unselected,
-	        	selectIndex : settings.selectIndex
-	        }
-	    );
+        this.list = new List(this.source, {
+        	type        : this.type,
+        	unselected  : settings.unselected,
+        	sindex      : settings.sindex,
+        	maxHeight   : settings.maxHeight,
+        	onClear     : () => {
+        		this._update();
+        	},
+        	onChoose    : (e) => {
+        		this._update(e);
+        		if (typeof this.onChoose == "function")
+        			this.onChoose(e);
+        		this.close();
+        	}
+        });
 
-	    this.choose(+this.list.selectIndex);
-
-	    this.list.onChoose = function(e)
-		{
-			self._update(e);
-
-			if (typeof self.settings.onChoose == "function")
-				self.settings.onChoose(e);
-
-			self.close();
-		};
-
-        // create search
         if (settings.search)
         	this.search = new Search(this.list, settings.search);
 
-		// append elements
-		this.$source.before($elements.main);
-		$elements.buttonCont.append(
-			$elements.button,
-			$elements.label.append("<span class='marker'></span>")
-		);
+        this.onChoose = getCallBack(settings.onChoose);
+		this.onReady  = getCallBack(settings.onReady);
 
-		if (this.settings.type == "ul")
-			$elements.main.append($elements.hidden);
+		this._buildElements(settings);
+		this._listenEvents(settings);
+		this._checkSingleAndEmpty();
+	}
 
-		$elements.main.append(
-			$elements.buttonCont,
-			$elements.listCont.append(this.list.$element)
-		);
+	_buildElements(settings)
+	{
+		var elements = this.elements;
+
+		this.source.after(elements.main);
+		elements.listCont.appendChild(this.list.element);
+		elements.buttonCont.append(elements.button, elements.label);
+		elements.main.append(elements.buttonCont, elements.listCont);
+
+		if (this.type == "ul")
+			elements.main.appendChild(elements.hidden);
 
 		if (this.search)
 		{
 			if (settings.search.inButton)
 			{
 				this.search.setValue(this.text);
-				$elements.buttonCont.prepend(this.search.$elements.main);
-				$elements.button.remove();
+				elements.buttonCont.prepend(this.search.elements.main);
+				elements.buttonCont.removeChild(elements.button);
 			}
-			else $elements.listCont.prepend(this.search.$elements.main);
+			else
+			{
+				elements.listCont.prepend(this.search.elements.main);
+			}
 
-			$elements.listCont.append(this.search.$elements.empty);
+			elements.listCont.appendChild(this.search.elements.empty);
 		}
 
-		// add rollup
 		if (settings.rollup)
 		{
-			$elements.rollup = DOC.create("button", "rollup");
-			$elements.listCont.append($elements.rollup);
-			$elements.rollup.click(function(e){
-				self.close();
-			});
+			elements.rollup = createElement("button", "rollup");
+			elements.listCont.appendChild(elements.rollup);
+			elements.rollup.onclick = (e) => this.close();
 		}
+	}
 
-		// listen events
-		var toogle = function(e){
-			e.preventDefault();
-			self.toogle();
-		}
+	_listenEvents(settings)
+	{
+		var elements = this.elements,
+			toggle = (e) => {
+				e.preventDefault();
+				this.toggle();
+			}
 
-		$elements.button.click(toogle);
-		$elements.label.click(toogle);
+		elements.button.onclick = toggle;
+		elements.label.onclick = toggle;
 
 		if (this.search && settings.search.inButton)
-			this.search.$elements.input.click(toogle);
+			this.search.elements.input.onclick = toggle;
 
-		document.body.addEventListener("click", function(e){
-			var parent = $(e.target).closest(".inputdecor-select");
-			if (!parent.length) self.close();
-		});
-
-		if (self.settings.onReady)
-			self.settings.onReady(this);
+		if (settings.onReady)
+			settings.onReady(this);
 	}
 
 	find(value)
@@ -178,28 +195,79 @@ export class Select
 	addOption(data)
 	{
 		this.list.addOption(data);
+		this.choose(0);
+		this._checkSingleAndEmpty();
 	}
 
-	_update(data)
+	removeOption(index)
 	{
-		this.text = data.unselected ? this.settings.placeholder : data.text;
+		this.list.removeOption(index);
+		this._checkSingleAndEmpty();
+	}
 
-		this.value = data.value;
+	clearOptions()
+	{
+		this.list.clearOptions();
+		this.elements.main.classList.add("empty");
+	}
+
+	_checkSingleAndEmpty()
+	{
+		if (!this.list.length)
+			this.elements.main.classList.add("empty");
+
+		else if (this.list.length == 1)
+		{
+			this.elements.main.classList.add("single");
+			this.elements.main.classList.remove("empty");
+		}
+		else
+		{
+			this.elements.main.classList.remove("empty");
+			this.elements.main.classList.remove("single");
+		}
+	}
+
+	_update(data = {})
+	{
+		var text  = data.text,
+			value = data.value;
+
+		if (!data.length)
+			text = this.textEmpty;
+
+		else if (data.index == 0 && this.unselected)
+			text = this.placeholder;
+
+		this.text  = text;
+		this.value = value;
 
 		if (this.search)
-			this.search.setValue(this.text);
+			this.search.setValue(text);
 
-		this.$elements.button.text(this.text);
-		this.$elements.hidden.val(this.value);
+		if (this.type == "ul")
+			this.elements.hidden.value = value;
+
+		this.elements.button.innerText = text;
+	}
+
+	get length()
+	{
+		return this.list.length;
+	}
+
+	get index()
+	{
+		return this.list.index;
 	}
 
 	open()
 	{
 		if (this.list.length > 1)
 		{
-			this.$elements.listCont.css("transform", "scaleY(1)");
-			this.$elements.button.addClass("active");
-			this.$elements.label.addClass("active");
+			this.elements.listCont.style.transform = "scaleY(1)";
+			this.elements.button.classList.add("active");
+			this.elements.label.classList.add("active");
 			this.active = true;
 
 			if (this.search) this.search.clear(true);
@@ -208,29 +276,27 @@ export class Select
 
 	close()
 	{
-		if (this.list.length > 1)
-		{
-			this.$elements.listCont.css("transform", "scaleY(0)");
-			this.$elements.button.removeClass("active");
-			this.$elements.label.removeClass("active");
-			this.active = false;
+		this.elements.listCont.style.transform = "scaleY(0)";
+		this.elements.button.classList.remove("active");
+		this.elements.label.classList.remove("active");
+		this.active = false;
 
-			if (this.search)
-			{
-				this.settings.search.inButton
-				? this.search.setValue(this.text)
-				: this.search.clear();
-			}
+		if (this.search)
+		{
+			this.search.inButton
+			? this.search.setValue(this.text)
+			: this.search.clear();
 		}
 	}
 
-	count()
-	{
-		return this.list.length;
-	}
-
-	toogle()
+	toggle()
 	{
 		this.active ? this.close() : this.open();
-	}	
+	}
 }
+
+export var Select = publish(
+	LocSelect,
+	["length", "index"],
+	["find", "choose", "addOption", "removeOption", "clearOptions", "open", "close", "toggle"]
+);

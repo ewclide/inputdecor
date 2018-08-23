@@ -1,99 +1,131 @@
-import { getOption, DOC } from './func';
+import { fetchSettings, createElement } from './func';
+import { publish } from './publish';
 
-export class InputFile
+var def = {
+	placeholder : "Select the file",
+	unselected  : "-- is not selected --",
+	className   : null,
+	clear       : true,
+	size        : true,
+	maxCount    : 3,
+	charSize    : 12,
+	types       : null,
+	fileList    : false,
+	errMaxCount : "Max count of files - ",
+	errTypes    : "You can only select files of types - "
+}
+
+var attrs = {
+	className   : "class",
+	maxCount    : "max-count",
+	charSize    : "char-size",
+	fileList    : "file-list",
+	errMaxCount : "err-maxcount",
+	errTypes    : "err-types"
+}
+
+class LocInputFile
 {
-	constructor($source, settings)
+	constructor(source, settings)
 	{
-		var self = this;
+		this.source = source;
 
-		this.$source = $source;
-		this.$elements = {};
+		settings = fetchSettings(settings, def, attrs, source);
 
-		if (!settings) settings = {}
+		this.types = [];
+		this.maxCount = settings.maxCount;
+		this.fileList = settings.fileList;
+		this.clear = settings.clear;
+		this.size = settings.size;
+		this.errMaxCount = settings.errMaxCount;
+		this.errTypes = settings.errTypes;
+		this.charSize = settings.charSize;
 
-		this.settings = {
-			placeholder : getOption("placeholder", $source, settings.placeholder, "Select the file"),
-			unselected  : getOption("unselected", $source, settings.unselected, "-- is not selected --"),
-			className   : getOption("class", $source, settings.className, ""),
-			clear       : getOption("clear", $source, settings.clear, true),
-			size        : getOption("size", $source, settings.size, false),
-			maxCount    : getOption("max-count", $source, settings.maxCount, 3),
-			types       : getOption("types", $source, settings.types, false),
-			fileList    : getOption("file-list", $source, settings.fileList, false)
-		}
-
-		this.errors = {
-			maxCount : getOption("maxcount-error", $source, settings.MaxCountError, "Max count of files - "),
-			types : getOption("types-error", $source, settings.TypesError, "You can only select files of types - ")
-		}
-
-		this._create(this.settings);
+		this._create(settings);
 	}
 
 	_create(settings)
 	{
-		var self = this, $elements = this.$elements;
+		this.source.style.display = "none";
 
-		this.$source.hide();
+		var elements = {
+			wrapper    : createElement("div", "inputdecor-file"),
+			unselected : createElement("span", "unselected", null, settings.unselected),
+			list       : createElement("div", "files-list"),
+			clear      : createElement("button", "clear", { display : "none" }),
+			button     : createElement("button", "button", null, settings.placeholder)
+		}
 
-		$elements.wrapper = DOC.create("div", "inputdecor-file " + (settings.className ? settings.className : ""));
-		$elements.unselected = DOC.create("span", "unselected").text(settings.unselected);
-		$elements.list = DOC.create("div", "files-list");
-		$elements.clear = DOC.create("button", "clear").hide();
-		$elements.clear[0].onclick = function(){
-			self.clear();
-		};
+		elements.clear.onclick = (e) => {
+			e.preventDefault();
+			this.clearList();
+		}
 
-		$elements.button = DOC.create("button", "button")
-			.text(settings.placeholder)
-			.click(function(e){
-				e.preventDefault();
-				self.$source.click();
-			});
+		elements.button.onclick = (e) => {
+			e.preventDefault();
+			this.source.click();
+		}
 
-		this.$source.after($elements.wrapper);
-		$elements.wrapper.append($elements.button);
-		$elements.wrapper.append($elements.list);
-		$elements.list.append($elements.unselected);
-		$elements.wrapper.append($elements.clear);
-		$elements.wrapper.append(this.$source);
+		// appending
+		this.source.after(elements.wrapper);
+		elements.list.appendChild(elements.unselected);
+		elements.wrapper.append(
+			elements.button,
+			elements.list,
+			elements.clear,
+			this.source
+		);
 
-		if (!settings.fileList) $elements.list.hide();
+		// setuping
+		if (settings.className)
+			elements.wrapper.classList.add(settings.className);
+
+		if (!settings.fileList)
+			elements.list.style.display = "none";
+
 		if (settings.types && typeof settings.types == "string")
-			settings.types = settings.types.replace(/\s+/g, "").split(",");
+			this.types = settings.types.replace(/\s+/g, "").split(",");
 
-		this.$source.change(function(e){
-			if (self.$source[0].files)
+		var self = this;
+
+		this.source.addEventListener("change", function(e){
+			if (self.source.files)
 			{
-				var files = self._getFiles(self.$source[0].files);
-				files ? self._showFiles(files) : self.clear();
+				var files = self._getFiles(self.source.files);
+				files ? self._showFiles(files) : self.clearList();
 			}
 		});
+
+		this.elements = elements;
 	}
 
 	_getFiles(files)
 	{
-		var list = [], settings = this.settings;
+		var list = [];
 
 		for (var i = 0; i < files.length; i++)
 		{
-			if (i >= settings.maxCount)
+			if (i >= this.maxCount)
 			{
-				alert(this.errors.maxCount + settings.maxCount + "!");
+				alert(this.errMaxCount + this.maxCount + "!");
 				return false;
 			}
 
-			var type = files[i].name.split(".");
-			type = type[type.length - 1].toLowerCase();
+			var parts = files[i].name.split("."),
+				type = parts.pop().toLowerCase(),
+				name = parts.join('.');
 
-			if (settings.types && settings.types.indexOf(type) == -1)
+			if (this.types && this.types.indexOf(type) == -1)
 			{
-				alert(this.errors.types + settings.types.join(", ") + "!");
+				alert(this.errTypes + this.types.join(", ") + "!");
 				return false;
 			}
+
+			if (this.charSize && name.length > this.charSize)
+				name = name.substr(0, this.charSize) + "...";
 
 			list.push({
-				name : files[i].name,
+				name : name,
 				size : Math.round(files[i].size / 1024),
 				type : type
 			});
@@ -104,42 +136,57 @@ export class InputFile
 
 	_showFiles(files)
 	{
-		var result = this._printFiles(files);
+		var list = this._printFiles(files);
 
-		this.settings.fileList
-		? this.$elements.list.html(result)
-		: this.$elements.button.html(result).addClass("choosen");
+		if (this.fileList)
+		{
+			this.elements.list.innerHTML = '';
+			this.elements.list.appendChild(list);
+		}
+		else 
+		{
+			this.elements.button.innerHTML = '';
+			this.elements.button.appendChild(list);
+			this.elements.button.classList.add("choosen");
+		}
 
-		if (this.settings.clear)
-			this.$elements.clear.show();
+		if (this.clear)
+			this.elements.clear.style.display = "";
 	}
 
 	_printFiles(files)
 	{
-		var result = "";
+		var frag = document.createDocumentFragment();
 
 		files.forEach( file => {
-			result += "<div class='file'><span class='name'>" + file.name + "</span>";
-			if (this.settings.size) result += "<span class='size'>" + file.size + "kb</span>";
-			result += "</div>";
+			var item = document.createElement("div");
+
+			item.classList.add('file');
+			item.innerHTML = "<span class='name'>" + file.name + "." + file.type + "</span>";
+
+			if (this.size) item.innerHTML += "<span class='size'>" + file.size + " kb</span>";
+
+			frag.appendChild(item);
 		});
 
-		return result;
+		return frag;
 	}
 
-	clear()
+	clearList()
 	{
-		this.$source.val('');
+		this.source.value = "";
 
-		if (!this.settings.fileList)
-			this.$elements.button.html("<span>" + this.settings.placeholder + "</span>");
+		if (!this.fileList)
+			this.elements.button.innerHTML = "<span>" + this.settings.placeholder + "</span>";
 
 		else 
 		{
-			this.$elements.list.empty();
-			this.$elements.list.append(this.$elements.unselected);
+			this.elements.list.innerHTML = "";
+			this.elements.list.appendChild(this.elements.unselected);
 		}
 
-		this.$elements.clear.hide();
+		this.elements.clear.style.display = "none";
 	}
 }
+
+export var InputFile = publish(LocInputFile, null, ["clearList"]);

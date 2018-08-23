@@ -1,71 +1,73 @@
-import { DOC } from './func';
+import { createElement } from './func';
 
 export class Search
 {
 	constructor(list, settings)
 	{
-		this.settings = settings;
+		this.inButton  = settings.inButton;
+		this.caseSense = settings.caseSense;
+		this.wholeWord = settings.wholeWord;
+		this.beginWord = settings.beginWord;
+
 		this.options = list.options;
 
-		this._create();
+		this._create(settings);
 	}
 
-	_create()
+	_create(settings)
 	{
-		var self = this;
-
-		this.$elements = {
-			main  : DOC.create("div", "search"),
-			input : DOC.create("input", { "type" : "text", "class" : "button" }),
-			clear : DOC.create("button", "clear").hide(),
-			empty : DOC.create("span", "empty").text(this.settings.textEmpty).hide()
+		this.elements = {
+			main  : createElement("div", "search"),
+			input : createElement("input", { "type" : "text", "class" : "button" }),
+			clear : createElement("button", "clear", { "display" : "none" }),
+			empty : createElement("span", "empty", { "display" : "none" }, settings.textEmpty)
 		}
 
-		this.$elements.input.on("input", function(e){
-			self.find(self.getValue());
-		});
-
-		this.$elements.clear.click(function(e){
+		this.elements.input.oninput = (e) => this.find(e.target.value);
+		this.elements.clear.onclick = (e) => {
 			e.preventDefault();
-			self.clear(true);
-		});
+			this.clear(true);
+		};
 
-		this.$elements.main.append(
-			this.$elements.input,
-			this.$elements.clear
-		);
+		this.elements.main.appendChild(this.elements.input);
+		this.elements.main.appendChild(this.elements.clear);
 	}
 
-	getValue()
+	get value()
 	{
-		return this.$elements.input.val();
+		return this.elements.input.value;
 	}
 
 	setValue(str, blur = true)
 	{
-		this.$elements.input.val(str);
-
-		str ? this.$elements.clear.show() : this.$elements.clear.hide();
+		this.elements.input.value = str;
+		this.elements.clear.style.display = str ? "" : "none";
 
 		if (blur)
 		{
-			this.$elements.clear.hide();
-			this.$elements.input.blur();
+			this.elements.clear.style.display = "none";
+			this.elements.input.blur();
 		}
 	}
 
 	clear(focus)
 	{
-		this.$elements.empty.hide();
-		this.$elements.clear.hide();
+		this.elements.empty.style.display = "none";
+		this.elements.clear.style.display = "none";
 
-		focus
-		? this.$elements.input.focus().val("")
-		: this.$elements.input.val("").blur();
+		if (focus)
+		{
+			this.elements.input.focus();
+			this.elements.input.value = "";
+		}
+		else
+		{
+			this.elements.input.value = "";
+			this.elements.input.blur();
+		}
 
 		this.options.forEach( option => {
-			option.childs && option.childs.forEach( child => child.$element.show() );
-			option.$element.show();
+			option.element.style.display = "";
 		})
 	}
 
@@ -73,9 +75,7 @@ export class Search
 	{
 		var found = this._find(this.options, text);
 
-		!found
-		? this.$elements.empty.show()
-		: this.$elements.empty.hide();
+		this.elements.empty.style.display = found ? "none" : "";
 
 		this.setValue(text, false);
 
@@ -87,40 +87,40 @@ export class Search
 		var count = 0;
 
 		options.forEach( option => {
+			if (!this._compare(option.text, text))
+				option.element.style.display = "none";
+			else
+			{
+				count++;
+				option.element.style.display = "";
 
-			var inside;
-
-			if (option.childs) inside = this._find(option.childs, text);
-			if (inside) count += inside;
-
-			!this._compare(option.text, text) && !inside
-			? option.$element.hide()
-			: ( count++, option.$element.show())
-			
+				if (option.parent)
+					option.parent.element.style.display = "";
+			}
 		});
 
 		return count;
 	}
 
-	_compare(value_1, value_2)
+	_compare(v1, v2)
 	{
-		if (!value_2) return true;
+		if (!v2) return true;
 
-		if (!this.settings.caseSense)
+		if (!this.caseSense)
 		{
-			value_1 = value_1.toUpperCase();
-			value_2 = value_2.toUpperCase();
+			v1 = v1.toUpperCase();
+			v2 = v2.toUpperCase();
 		}
 
-		if (this.settings.wholeWord)
-			return value_1 == value_2  ? true : false;
-
+		if (this.wholeWord)
+			return v1 == v2  ? true : false;
+		
 		else
 		{
-			var idx = value_1.indexOf(value_2);
+			var idx = v1.indexOf(v2);
 
-			if (this.settings.beginWord)
-				return idx != -1 && ( idx == 0 || value_1[idx - 1] == " " ) ? true : false;
+			if (this.beginWord)
+				return idx != -1 && ( idx == 0 || v1[idx - 1] == " " ) ? true : false;
 
 			else return idx != -1 ? true : false;
 		}

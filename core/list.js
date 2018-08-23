@@ -1,179 +1,253 @@
-import { DOC, init } from './func';
+import { createElement } from './func';
 
 export class List
 {
-	constructor($source, settings)
+	constructor(source, settings)
 	{
-		this.$source = $source;
-		this.settings = settings;
-
-		this.length = 0;
+		this.source = source;
+		this.element;
 		this.options = [];
-		this.onChoose;
-		this.$element;
-		this.$allElements;
-		this.selectIndex = settings.selectIndex || 0;
+		this.groups = {};
+		this.onChoose = settings.onChoose;
+		this.onClear = settings.onClear;
+		this.unselected = settings.unselected;
+
+		if (!("selectedIndex" in this.source))
+			this.source.selectedIndex = 0;
+
+		if (settings.sindex)
+			this.source.selectedIndex = settings.sindex;
+
+		if (settings.unselected)
+			this._createUnselected(settings.type, settings.unselected);
+
+		if (settings.type == "select")
+			this._createFromSelect(settings);
+		else if (settings.type == "ul")
+			this._createFromUL(settings);
 		
-		this._create();
+		this.choose(this.index);
+
+		this.element.onclick = (e) => {
+			var idx = e.target._decorIndex;
+			if (!idx) idx = e.target.closest("li")._decorIndex;
+			this.choose(idx);
+		}
 	}
 
-	addOption(data)
+	get length()
 	{
-		var self = this,
-			option = this._createOption(data);
-
-		this.$source.append("<option value=" + option.value + ">"+ option.text +"</option>");
-
-		if (data.childs)
-		{
-			option.$element.addClass("group");
-
-			data.childs.forEach(function(child){
-				child.className = "child";
-				self._createOption(child);
-				self.$source.append("<option value=" + child.value + ">"+ child.text +"</option>");
-			});
-		}
-
-		this.options.push(option);
+		return this.options.length + ( this.unselected ? -1 : 0 );
 	}
 
-	_create()
+	get index()
 	{
-		var self = this;
+		return this.source.selectedIndex;
+	}
 
-		this.$element = DOC.create("ul", "list");
+	_createFromSelect(settings)
+	{
+		var list = this.source.options;
 
-		if (this.settings.unselected)
-		{
-			var unselected = this.settings.unselected;
-
-			if (this.settings.type == "select")
-				unselected = '<option value="">' + unselected + '</option>';
-
-			else if (this.settings.type == "ul")
-				unselected = '<li class="unselected" value="">' + unselected + '</li>';
-
-			this.$source.prepend(unselected);
-			if (this.selectIndex) this.selectIndex++;
-		}
-
-		this.options = this._buildOptions();
-		this.$allElements = this.$element.find("li");
-
-		this.$element.click(function(e){
-			var target;
-
-			if ("_decorTarget" in e.target) target = e.target._decorTarget;
-			else target = $(e.target).closest("li")[0]._decorTarget;
-
-			self.choose(target);
+		this.element = createElement("ul", "list", {
+			maxHeight : settings.maxHeight + "px",
+			overflowY : "auto"
 		});
-	}
 
-	choose(target)
-	{
-		if (typeof target == "number")
+		if (list.length)
 		{
-			if (target >= this.options.length) return false;
-			target = this.options[target];
-		}
+			let frag = document.createDocumentFragment();
 
-		var data = {
-			value : target.value,
-			text  : target.text,
-			index  : target.index,
-			unselected : target.text === this.settings.unselected
-		}
-
-		this.$allElements.removeAttr("data-selected");
-		target.$element.attr("data-selected", "true");
-
-		this.$source[0].selectedIndex = target.index;
-		this.$source.change();
-
-		if (typeof this.onChoose == "function")
-			this.onChoose(data);
-
-		return data;
-	}
-
-	_buildOptions()
-	{
-		var self = this,
-			options = this.$source.find(">"),
-			result = [];
-
-		this.$element._decorLength = 0;
-
-		if (options.length)
-			options.each(function(){
-				var data,
-					option = $(this),
-					group = option.attr("data-group");
-
-				if (group)
-				{
-					var childs = [];
-
-					data = self._getOptionData(option, "group", group),
-
-					option.find("ul > li").each(function(){
-						childs.push(self._getOptionData($(this), "child"));
+			for (var i = 0; i < list.length; i++)
+			{
+				let element = list[i],
+					option = this._createOption({
+						value    : element.value || element.getAttribute("value"),
+						text     : element.innerText,
+						html     : element.innerHTML,
+						selected : element.getAttribute("selected") || false,
+						clsName  : element.getAttribute("class"),
+						group    : element.getAttribute("data-group"),
+						child    : element.getAttribute("data-child")
 					});
 
-					data.childs = childs;
-				}
-				else data = self._getOptionData(option);
+				frag.appendChild(option);
+			}
 
-				result.push(data);
-			});
-
-		this.length = result.length;
-
-		return result.length ? result : false;
+			this.element.appendChild(frag);
+		}
 	}
 
-	_getOptionData($option, type, html)
+	_createFromUL(settings)
 	{
-		var self = this,
-			selected = $option.attr("selected"),
-			cls = $option.attr("class");
+		var list = this.source.querySelectorAll("li");
 
-		if (type && cls) cls += " " + type;
-		else if (type) cls = type;
+		this.element = this.source;
+		this.source.style.display = "";
+		this.source.style.maxHeight = settings.maxHeight + "px";
+		this.source.style.overflowY = "auto";
+		this.source.classList.add("list");
 
-		var option = this._createOption({
-			value : $option.val() || $option.attr("value"),
-			text  : type == "group" ? "" : $option.text(),
-			html  : type == "group" ? html : $option.html(),
-			className : cls ? cls : ""
-		});
+		for (var i = 0; i < list.length; i++)
+		{
+			let element = list[i];
 
-		if (selected) this.selectIndex = option.index;
+			this._createOption({
+				element  : element,
+				value    : element.value || element.getAttribute("value"),
+				text     : element.innerText,
+				html     : element.innerHTML,
+				selected : element.getAttribute("selected") || false,
+				clsName  : element.getAttribute("class"),
+				group    : element.getAttribute("data-group"),
+				child    : element.getAttribute("data-child")
+			})
+		}
+	}
 
-		return option;
+	_createUnselected(type, text)
+	{
+		let idx = this.source.selectedIndex,
+			tag = type == "ul" ? "li" : "option",
+			element = createElement(tag, "unselected", null, text);
+			element._decorIndex = 0;
+
+		this.source.insertAdjacentElement("afterbegin", element);
+		this.unselectedElement = element;
+
+		if (!idx) this.source.selectedIndex = 0;
 	}
 
 	_createOption(data)
 	{
-		var $li = DOC.create("li"),
+		var element = data.element || createElement("li", data.clsName),
+			index = this.options.length,
 			option = {
-				$element : $li,
-				value    : data.value !== undefined ? data.value : "",
-				text     : data.html && !data.text ? $("<div>" + data.html + "</div>").text() : data.text,
-				index 	 : this.$element._decorLength++
+				element : element,
+				value   : data.value,
+				text    : data.text,
+				index 	: index
 			}
 
-		if (data.className)
-			$li.addClass(data.className);
+		element._decorIndex = index;
 
-		data.html ? $li.html(data.html) : $li.text(data.text);
+		if (data.group)
+		{
+			this.groups[data.group] = option;
+			option.childs = [];
+			option.group = data.group;
+		}
+		else if (data.child && data.child in this.groups)
+		{
+			let parent = this.groups[data.child];
+			element.classList.add("child");
+			option.parent = parent;
+			parent.childs.push(option);
+		}
 
-		$li[0]._decorTarget = option;
+		if (data.html)
+			element.innerHTML = data.html;
+		else if (data.text)
+			element.innerText = data.text;
 
-		this.$element.append($li);
+		if (data.selected)
+		{
+			element.classList.add("active");
+			this.source.selectedIndex = index;
+		}
 
-		return option;
+		this.options.push(option);
+
+		return element;
+	}
+
+	addOption(data, after)
+	{
+		if (Array.isArray(data))
+		{
+			let frag = document.createDocumentFragment();
+
+			data.forEach( (item) => {
+				let option = this._createOption(item);
+				frag.appendChild(option);
+			});
+
+			this.element.appendChild(frag);
+		}
+		else
+		{
+			let option = this._createOption(data);
+			this.element.appendChild(option);
+		}
+	}
+
+	removeOption(idx)
+	{
+		idx++;
+
+		var option = this.options[idx];
+
+		this.element.removeChild(option.element);
+		this.options.splice(idx, 1);
+
+		if (option.childs)
+		{
+			option.childs.forEach((child) => {
+				this.element.removeChild(child.element);
+				this.options.splice(child.index, 1);
+			});
+
+			delete this.groups[option.group];
+		}
+
+		this.options.forEach( (option, i) =>{
+			option.index = i;
+			option.element._decorIndex = i;
+		})
+
+		console.log(option, this)
+	}
+
+	clearOptions()
+	{
+		var unselected = this.options[0];
+
+		this.element.innerHTML = "";
+		this.options = [];
+		this.groups = [];
+
+		this.onClear();
+
+		if (this.unselectedElement)
+			this.element.appendChild(this.unselectedElement);
+	}
+
+	choose(idx)
+	{
+		// idx++;
+
+		if (typeof idx != "number" || idx >= this.options.length || idx < -1 ) return;
+
+		var option = this.options[idx] || {},
+			data = {
+				value  : option.value,
+				text   : option.text,
+				index  : idx,
+				length : this.length // need for use textEmpty
+			}
+
+		for (var i = 0; i < this.options.length; i++)
+			this.options[i].element.classList.remove("active");
+
+		if (option.element)
+			option.element.classList.add("active");
+
+		this.source.selectedIndex = idx;
+		this.source.dispatchEvent(new Event("change"));
+        
+		if (typeof this.onChoose == "function")
+			this.onChoose(data);
+
+		return data;
 	}
 }
