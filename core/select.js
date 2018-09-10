@@ -4,7 +4,6 @@ import { Search } from './search';
 import { publish } from './publish';
 
 var def = {
-	name         : null,
 	speed        : 250,
 	maxHeight    : 250,
 	rollup       : false,
@@ -54,6 +53,7 @@ class LocSelect
 		this.type = type;
 		this.active = false;
 		this.value = source.value;
+		this.name = source.name;
 		this.text  = settings.placeholder;
 		this.speed  = settings.speed;
 		this.placeholder = settings.placeholder;
@@ -76,6 +76,11 @@ class LocSelect
 		this._create(settings);
 	}
 
+	get isInputDecor()
+	{
+		return true;
+	}
+
 	_create(settings)
 	{
         this.elements = {
@@ -83,6 +88,11 @@ class LocSelect
 	        buttonCont : createElement("div", "button-wrapper"),
 	        button     : createElement("button", "button", null, settings.placeholder),
 	        label      : createElement("button", "label"),
+	        hidden     : createElement("input", {
+	        	type  : "hidden",
+	        	name  : this.name,
+	        	value : this.value
+	        }),
 	        listCont   : createElement( "div", "list-wrapper", {
 	        	position        : "absolute",
 	        	minWidth        : "100%",
@@ -92,25 +102,14 @@ class LocSelect
 	        })
         }
 
-        if (this.type == "ul")
-        	this.elements.hidden = createElement("input", {
-	        	type  : "hidden",
-	        	name  : this.source.getAttribute("name") || settings.name,
-	        	value : this.value
-	        })
-
         this.list = new List(this.source, {
         	type        : this.type,
         	unselected  : settings.unselected,
         	sindex      : settings.sindex,
         	maxHeight   : settings.maxHeight,
-        	onClear     : () => {
-        		this._update();
-        	},
+        	dispEvent   : (e) => this._dispatchEvent(e),
         	onChoose    : (e) => {
         		this._update(e);
-        		if (typeof this.onChoose == "function")
-        			this.onChoose(e);
         		this.close();
         	}
         });
@@ -126,17 +125,21 @@ class LocSelect
 		this._checkSingleAndEmpty();
 	}
 
+	_dispatchEvent(e)
+	{
+		if (typeof this.onChoose == "function") this.onChoose(e);
+	}
+
 	_buildElements(settings)
 	{
 		var elements = this.elements;
 
 		this.source.after(elements.main);
+		this.source.parentNode.removeChild(this.source);
 		elements.listCont.appendChild(this.list.element);
 		elements.buttonCont.append(elements.button, elements.label);
 		elements.main.append(elements.buttonCont, elements.listCont);
-
-		if (this.type == "ul")
-			elements.main.appendChild(elements.hidden);
+		elements.main.appendChild(elements.hidden);
 
 		if (this.search)
 		{
@@ -164,7 +167,8 @@ class LocSelect
 
 	_listenEvents(settings)
 	{
-		var elements = this.elements,
+		var self = this,
+			elements = this.elements,
 			toggle = (e) => {
 				e.preventDefault();
 				this.toggle();
@@ -178,6 +182,11 @@ class LocSelect
 
 		if (settings.onReady)
 			settings.onReady(this);
+
+		document.body.addEventListener("click", function(e){
+			var parent = e.target.closest(".inputdecor-select");
+			if (!parent) self.close();
+		});
 	}
 
 	find(value)
@@ -187,15 +196,15 @@ class LocSelect
 
 	choose(index)
 	{
-		var data = this.list.choose(index);
-		this._update(data);
+		var e = this.list.choose(index);
+		this._dispatchEvent(e);
+		this._update(e);
 		this.close();
 	}
 
 	addOption(data)
 	{
 		this.list.addOption(data);
-		this.choose(0);
 		this._checkSingleAndEmpty();
 	}
 
@@ -205,38 +214,48 @@ class LocSelect
 		this._checkSingleAndEmpty();
 	}
 
+	removeChilds(index)
+	{
+		this.list.removeChilds(index);
+		this._checkSingleAndEmpty();
+	}
+
 	clearOptions()
 	{
 		this.list.clearOptions();
-		this.elements.main.classList.add("empty");
+		this._checkSingleAndEmpty();
 	}
 
 	_checkSingleAndEmpty()
 	{
 		if (!this.list.length)
+		{
 			this.elements.main.classList.add("empty");
-
+			if (this.search) this.search.changeInputType(2);
+		}
 		else if (this.list.length == 1)
 		{
 			this.elements.main.classList.add("single");
 			this.elements.main.classList.remove("empty");
+			if (this.search) this.search.changeInputType(2);
 		}
 		else
 		{
 			this.elements.main.classList.remove("empty");
 			this.elements.main.classList.remove("single");
+			if (this.search) this.search.changeInputType(1);
 		}
 	}
 
-	_update(data = {})
+	_update(data)
 	{
-		var text  = data.text,
-			value = data.value;
+		var value = data.value,
+			text  = data.text;
 
 		if (!data.length)
 			text = this.textEmpty;
 
-		else if (data.index == 0 && this.unselected)
+		else if (data.index == -1)
 			text = this.placeholder;
 
 		this.text  = text;
@@ -245,9 +264,7 @@ class LocSelect
 		if (this.search)
 			this.search.setValue(text);
 
-		if (this.type == "ul")
-			this.elements.hidden.value = value;
-
+		this.elements.hidden.value = value;
 		this.elements.button.innerText = text;
 	}
 
@@ -297,6 +314,6 @@ class LocSelect
 
 export var Select = publish(
 	LocSelect,
-	["length", "index"],
-	["find", "choose", "addOption", "removeOption", "clearOptions", "open", "close", "toggle"]
+	["length", "index", "value", "isInputDecor"],
+	["find", "choose", "addOption", "removeOption", "removeChilds", "clearOptions", "open", "close", "toggle"]
 );

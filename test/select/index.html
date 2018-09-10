@@ -11,7 +11,7 @@
 </head>
 <body>
 
-	<ul data-inputdecor name="list" data-search data-sindex="4">
+	<ul data-inputdecor1 name="list" data-search data-sindex="4" data-on-choose="console.log(e)">
 		<li value="value 1"><a href="#">value 1</a></li>
 		<li value="value 2" data-group="v2">value 2</li>
 			<li value="value 2.1" data-child="v2" selected><a href="#">value 2.1</a></li>
@@ -24,7 +24,8 @@
 
 	<select
 		id="target"
-		data-inputdecor
+		name="target"
+		data-inputdecor1
 		data-rollup
 		data-unselected
 		data-search
@@ -41,7 +42,7 @@
 	</select>
 	<br><br>
 
-	<select id="test"></select>
+	<select id="test" name="test"></select>
 
 	<script src="/result/inputdecor.min.js"></script>
 	<script src="common.js"></script>

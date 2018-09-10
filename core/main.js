@@ -4,25 +4,42 @@ var instances = {}
 
 class InputDecor
 {
-	constructor(query, settings = {})
+	constructor(element, settings = {})
 	{
 		this.ids = [];
 
-		var list = document.querySelectorAll(query);
-
-		for (var i = 0; i < list.length; i++)
+		if (typeof element == "string")
 		{
-			let item = list[i],
-				id = item.getAttribute("id") || Math.random(),
-				instance = decorate(item, settings);
+			var list = document.querySelectorAll(element);
 
-			instances[id] = instance;
+			for (var i = 0; i < list.length; i++)
+			{
+				let item = list[i],
+					id = item.getAttribute("id") || Math.random(),
+					instance = decorate(item, settings);
+					instances[id] = instance;
+
+				this.ids.push(id);
+			}
+
+			if (list.length == 1)
+				return instances[this.ids[0]];
+		}
+		else if (element.nodeType == 1)
+		{
+			var id = element.getAttribute("id") || Math.random(),
+				instance = decorate(element, settings);
+				instances[id] = instance;
 
 			this.ids.push(id);
-		}
 
-		if (list.length == 1)
-			return instances[this.ids[0]];
+			return instances[id];
+		}
+	}
+
+	get isInputDecor()
+	{
+		return true;
 	}
 
 	evoke(method, args)
@@ -59,8 +76,3 @@ InputDecor.getById = function(id)
 var first = new InputDecor("[data-inputdecor]");
 
 window.InputDecor = InputDecor;
-
-// document.body.addEventListener("click", function(e){
-//  var parent = $(e.target).closest(".inputdecor-select");
-//  if (!parent.length) self.close();
-// });

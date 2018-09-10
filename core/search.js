@@ -127,4 +127,13 @@ export class Search
 
 		return;
 	}
+
+	changeInputType(type)
+	{
+		if (type == 1)
+			this.elements.input.type = "text";
+		
+		else if (type == 2)
+			this.elements.input.type = "button";
+	}
 }
