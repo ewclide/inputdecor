@@ -21,23 +21,23 @@ test.clearOptions();
 //     group : "main"
 // });
 
-test.addOption([
-    {
-        text  : "child option 1",
-        value : 1,
-        child : "main"
-    },
-    {
-        text  : "child option 2",
-        value : 2,
-        child : "main"
-    },
-    {
-        text  : "child option 3",
-        value : 3,
-        child : "main"
-    }
-]);
+// test.addOption([
+//     {
+//         text  : "child option 1",
+//         value : 1,
+//         child : "main"
+//     },
+//     {
+//         text  : "child option 2",
+//         value : 2,
+//         child : "main"
+//     },
+//     {
+//         text  : "child option 3",
+//         value : 3,
+//         child : "main"
+//     }
+// ]);
 
 // test.addOption({
 //     text  : "second option",

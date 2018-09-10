@@ -10,12 +10,15 @@ export class List
 		this.groups = {};
 		this.onChoose = settings.onChoose;
 		this.dispEvent = settings.dispEvent;
-		this.unselected = settings.unselected;
+		this.active;
 
 		if (settings.type == "select")
 			this._createFromSelect(source, settings);
 		else if (settings.type == "ul")
 			this._createFromUL(source, settings);
+
+		if (settings.unselected)
+			this.unselected = this._createUnselected(settings.unselected);
 
 		this.choose(this.index);
 
@@ -28,24 +31,17 @@ export class List
 
 	get length()
 	{
-		return this.options.length + ( this.unselected ? -1 : 0 );
+		return this.options.length;
 	}
 
 	_createUnselected(text)
 	{
 		var element = createElement("li", "unselected", null, text);
-
-		element._decorIndex = -1;
-		this.unselectedElement = element;
-
-		this.options.unshift({
-			element : element,
-			value   : null,
-			text    : text,
-			index 	: -1
-		});
+			element._decorIndex = -1;
 
 		this.element.prepend(element);
+
+		return element;
 	}
 
 	_createFromSelect(source, settings)
@@ -56,9 +52,6 @@ export class List
 			maxHeight : settings.maxHeight + "px",
 			overflowY : "auto"
 		});
-
-		if (settings.unselected)
-			this._createUnselected(settings.unselected);
 
 		if (list.length)
 		{
@@ -94,9 +87,6 @@ export class List
 		source.style.overflowY = "auto";
 		source.classList.add("list");
 
-		if (settings.unselected)
-			this._createUnselected(settings.unselected);
-
 		for (var i = 0; i < list.length; i++)
 		{
 			let element = list[i];
@@ -117,7 +107,7 @@ export class List
 	_createOption(data)
 	{
 		var element = data.element || createElement("li", data.className),
-			index = this.length,
+			index = this.options.length,
 			option = {
 				element : element,
 				value   : data.value,
@@ -125,26 +115,22 @@ export class List
 				index 	: index
 			}
 
-		element._decorIndex = index;
-
 		if (data.group)
 		{
-			this.groups[data.group] = option;
-			option.childs = [];
 			option.group = data.group;
+			this.groups[data.group] = {};
 		}
 		else if (data.child && data.child in this.groups)
 		{
-			let parent = this.groups[data.child];
-			parent.childs.push(option);
-			option.parent = parent;
+			var group = this.groups[data.child];
+				group.push(option);
+
+			option.parent = group;
 			element.classList.add("child");
 		}
 
-		if (data.html)
-			element.innerHTML = data.html;
-		else if (data.text)
-			element.innerText = data.text;
+		if (data.html) element.innerHTML = data.html;
+		else if (data.text) element.innerText = data.text;
 
 		if (data.selected)
 		{
@@ -153,11 +139,12 @@ export class List
 		}
 
 		this.options.push(option);
+		element._decorIndex = index;
 
 		return option;
 	}
 
-	addOption(data, after)
+	addOption(data)
 	{
 		var before = this.length;
 
@@ -184,26 +171,40 @@ export class List
 
 	choose(idx)
 	{
-		idx++;
+		var data;
 
-		if (typeof idx != "number" || idx >= this.options.length || idx < 0 ) return;
+		if (typeof idx != "number") return;
 
-		var option = this.options[idx] || {},
+		if (this.active)
+			this.active.classList.remove("active");
+
+		if (idx == -1 && this.unselected)
+		{
+			this.index = -1;
+			this.active = this.unselected;
+			this.unselected.classList.add("active");
+
+			data = {
+				index  : -1,
+				length : this.options.length
+			}
+		}
+		else if (idx < this.options.length || idx >= 0)
+		{
+			var option = this.options[idx];
+
+			this.index = option.index;
+			this.active = option.element;
+			option.element.classList.add("active");
+
 			data = {
 				value  : option.value,
 				text   : option.text,
 				index  : option.index,
-				length : this.length
+				length : this.options.length
 			}
+		}
 
-		this.index = option.index;
-
-		for (var i = 0; i < this.options.length; i++)
-			this.options[i].element.classList.remove("active");
-
-		if (option.element)
-			option.element.classList.add("active");
-        
 		if (typeof this.onChoose == "function")
 			this.onChoose(data);
 
@@ -256,8 +257,8 @@ export class List
 		this.index = -1;
 		this.choose(-1);
 
-		if (this.unselectedElement)
-			this.element.appendChild(this.unselectedElement);
+		if (this.unselected)
+			this.element.appendChild(this.unselected);
 	}
 
 	_rebuildOptions()

@@ -55,9 +55,9 @@ class LocSelect
 		this.value = source.value;
 		this.name = source.name;
 		this.text  = settings.placeholder;
-		this.speed  = settings.speed;
+		// this.speed  = settings.speed;
 		this.placeholder = settings.placeholder;
-		this.unselected = settings.unselected ? true : false;
+		// this.unselected = settings.unselected ? true : false;
 		this.textEmpty = settings.textEmpty;
 		this.onChoose;
 		this.onReady;
