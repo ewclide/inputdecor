@@ -8,21 +8,22 @@ var def = {
 	maxHeight    : 250,
 	rollup       : false,
 	className    : "",
-	sindex       : 0,
+	sindex       : -1,
 	unselected   : "-- not selected --",
 	textEmpty    : "Nothing to choose",
 	placeholder  : "Select value",
+	zIndex       : 1,
 	search       : false,
-	onChoose     : null,
+	onChange     : null,
 	onReady      : null
 }
 
 var attrs = {
-	maxHeight    : "max-height",
-	textEmpty    : "text-empty",
-	className    : "class",
-	onChoose     : "on-choose",
-	onReady      : "on-ready"
+	maxHeight : "max-height",
+	textEmpty : "text-empty",
+	className : "class",
+	onChange  : "on-change",
+	onReady   : "on-ready"
 }
 
 var searchDef = {
@@ -49,17 +50,16 @@ class LocSelect
 
 		settings = fetchSettings(settings, def, attrs, source);
 
+		// this.speed  = settings.speed;
 		this.source = source;
 		this.type = type;
 		this.active = false;
 		this.value = source.value;
 		this.name = source.name;
 		this.text  = settings.placeholder;
-		// this.speed  = settings.speed;
 		this.placeholder = settings.placeholder;
-		// this.unselected = settings.unselected ? true : false;
 		this.textEmpty = settings.textEmpty;
-		this.onChoose;
+		this.onChange;
 		this.onReady;
 
 		if (settings.unselected === true)
@@ -74,11 +74,6 @@ class LocSelect
 		}
 
 		this._create(settings);
-	}
-
-	get isInputDecor()
-	{
-		return true;
 	}
 
 	_create(settings)
@@ -105,10 +100,10 @@ class LocSelect
         this.list = new List(this.source, {
         	type        : this.type,
         	unselected  : settings.unselected,
-        	sindex      : settings.sindex,
+        	sindex      : this.source.selectedIndex || settings.sindex,
         	maxHeight   : settings.maxHeight,
         	dispEvent   : (e) => this._dispatchEvent(e),
-        	onChoose    : (e) => {
+        	onChange    : (e) => {
         		this._update(e);
         		this.close();
         	}
@@ -117,7 +112,7 @@ class LocSelect
         if (settings.search)
         	this.search = new Search(this.list, settings.search);
 
-        this.onChoose = getCallBack(settings.onChoose);
+        this.onChange = getCallBack(settings.onChange);
 		this.onReady  = getCallBack(settings.onReady);
 
 		this._buildElements(settings);
@@ -127,7 +122,7 @@ class LocSelect
 
 	_dispatchEvent(e)
 	{
-		if (typeof this.onChoose == "function") this.onChoose(e);
+		if (typeof this.onChange == "function") this.onChange(e);
 	}
 
 	_buildElements(settings)
@@ -189,43 +184,6 @@ class LocSelect
 		});
 	}
 
-	find(value)
-	{
-		this.search.find(value);
-	}
-
-	choose(index)
-	{
-		var e = this.list.choose(index);
-		this._dispatchEvent(e);
-		this._update(e);
-		this.close();
-	}
-
-	addOption(data)
-	{
-		this.list.addOption(data);
-		this._checkSingleAndEmpty();
-	}
-
-	removeOption(index)
-	{
-		this.list.removeOption(index);
-		this._checkSingleAndEmpty();
-	}
-
-	removeChilds(index)
-	{
-		this.list.removeChilds(index);
-		this._checkSingleAndEmpty();
-	}
-
-	clearOptions()
-	{
-		this.list.clearOptions();
-		this._checkSingleAndEmpty();
-	}
-
 	_checkSingleAndEmpty()
 	{
 		if (!this.list.length)
@@ -268,6 +226,11 @@ class LocSelect
 		this.elements.button.innerText = text;
 	}
 
+	get isInputDecor()
+	{
+		return true;
+	}
+
 	get length()
 	{
 		return this.list.length;
@@ -276,6 +239,57 @@ class LocSelect
 	get index()
 	{
 		return this.list.index;
+	}
+
+	find(value)
+	{
+		this.search.find(value);
+	}
+
+	create()
+	{
+		// create empty object...
+	}
+
+	select(index)
+	{
+		var e = this.list.select(index);
+		this._dispatchEvent(e);
+		this._update(e);
+		this.close();
+	}
+
+	selectByValue(value, dispatch = true)
+	{
+		var e = this.list.selectByValue(value);
+		this._update(e);
+		this.close();
+
+		if (dispatch) this._dispatchEvent(e);
+	}
+
+	addOption(data)
+	{
+		this.list.addOption(data);
+		this._checkSingleAndEmpty();
+	}
+
+	removeOption(index)
+	{
+		this.list.removeOption(index);
+		this._checkSingleAndEmpty();
+	}
+
+	clearGroup(name)
+	{
+		this.list.clearGroup(name);
+		this._checkSingleAndEmpty();
+	}
+
+	clearOptions()
+	{
+		this.list.clearOptions();
+		this._checkSingleAndEmpty();
 	}
 
 	open()
@@ -315,5 +329,5 @@ class LocSelect
 export var Select = publish(
 	LocSelect,
 	["length", "index", "value", "isInputDecor"],
-	["find", "choose", "addOption", "removeOption", "removeChilds", "clearOptions", "open", "close", "toggle"]
+	["find", "select", "selectByValue",  "addOption", "removeOption", "clearGroup", "clearOptions", "open", "close", "toggle"]
 );

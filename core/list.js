@@ -5,10 +5,11 @@ export class List
 	constructor(source, settings)
 	{
 		this.element;
-		this.index = source.selectedIndex || settings.sindex;
+		this.index = settings.sindex;
+		this.length = 0;
 		this.options = [];
 		this.groups = {};
-		this.onChoose = settings.onChoose;
+		this.onChange = settings.onChange;
 		this.dispEvent = settings.dispEvent;
 		this.active;
 
@@ -20,16 +21,16 @@ export class List
 		if (settings.unselected)
 			this.unselected = this._createUnselected(settings.unselected);
 
-		this.choose(this.index);
+		this.select(this.index);
 
 		this.element.onclick = (e) => {
 			var idx = e.target._decorIndex;
 			if (!idx) idx = e.target.closest("li")._decorIndex;
-			this.dispEvent(this.choose(idx));
+			this.dispEvent(this.select(idx));
 		}
 	}
 
-	get length()
+	get wholeLength()
 	{
 		return this.options.length;
 	}
@@ -107,46 +108,66 @@ export class List
 	_createOption(data)
 	{
 		var element = data.element || createElement("li", data.className),
-			index = this.options.length,
 			option = {
 				element : element,
 				value   : data.value,
-				text    : data.text,
-				index 	: index
+				text    : data.text
 			}
 
 		if (data.group)
-		{
-			option.group = data.group;
-			this.groups[data.group] = {};
-		}
+			this._createGroup(data.group, option);
 		else if (data.child && data.child in this.groups)
-		{
-			var group = this.groups[data.child];
-				group.push(option);
+			this._createChild(data.child, option);
+		else option.index = this.length++;
 
-			option.parent = group;
-			element.classList.add("child");
-		}
-
-		if (data.html) element.innerHTML = data.html;
-		else if (data.text) element.innerText = data.text;
+		if (data.html)
+			element.innerHTML = data.html;
+		else if (data.text)
+			element.innerText = data.text;
 
 		if (data.selected)
 		{
 			element.classList.add("active");
-			this.index = index;
+			this.index = option.index;
 		}
 
 		this.options.push(option);
-		element._decorIndex = index;
+		element._decorIndex = option.index;
+
+		console.log(this)
 
 		return option;
 	}
 
+	_createGroup(name, option)
+	{
+		var group = [];
+			group.parent = option;
+			group.last = option.element;
+			
+		this.groups[name] = group;
+
+		option.group = name;
+		option.index = this.length++;
+	}
+
+	_createChild(name, option)
+	{
+		var group = this.groups[name];
+				
+		option.append = group.last;
+		option.parent = group.parent;
+		option.nodeIndex = group.length;
+
+		group.last = option.element;
+		group.push(option);
+
+		option.element.classList.add("child");
+	}
+
 	addOption(data)
 	{
-		var before = this.length;
+		var before = this.options.length;
 
 		if (Array.isArray(data))
 		{
@@ -154,7 +175,10 @@ export class List
 
 			data.forEach((item) => {
 				let option = this._createOption(item);
-				frag.appendChild(option.element);
+
+				option.append
+				? option.append.after(option.element)
+				: frag.appendChild(option.element);
 			});
 
 			this.element.appendChild(frag);
@@ -162,14 +186,17 @@ export class List
 		else
 		{
 			let option = this._createOption(data);
-			this.element.appendChild(option.element);
+
+			option.append
+			? option.append.after(option.element)
+			: this.element.appendChild(option.element);
 		}
 
-		if (this.length == 1) this.choose(0);
-		else if (before == 0) this.choose(this.index);
+		if (this.options.length == 1) this.select(0);
+		else if (before == 0) this.select(this.index);
 	}
 
-	choose(idx)
+	select(idx)
 	{
 		var data;
 
@@ -205,19 +232,33 @@ export class List
 			}
 		}
 
-		if (typeof this.onChoose == "function")
-			this.onChoose(data);
+		if (typeof this.onChange == "function")
+			this.onChange(data);
 
 		return data;
+	}
+
+	selectByValue(value)
+	{
+		var index = -1;
+
+		for (var i = 0; i < this.options.length; i++)
+			if (this.options[i].value == value)
+			{
+				index = this.options[i].index;
+				break;
+			}
+		
+		return this.select(index);
 	}
 
 	removeOption(idx)
 	{
 		var option = this.options[idx + 1];
 
-		if (option.childs)
+		if (option.group)
 		{
-			this.removeChilds(idx);
+			this.clearGroup(option.group);
 			delete this.groups[option.group];
 		}
 
@@ -227,21 +268,17 @@ export class List
 		this._rebuildOptions();
 	}
 
-	removeChilds(idx)
+	clearGroup(name)
 	{
-		idx++;
+		var childs = this.groups[name],
+			idx = childs.parent.index;
 
-		var main = this.options[idx],
-			index = main.index + (this.unselected ? 2 : 1);
-
-		if (!main.childs) return;
-
-		main.childs.forEach( child => {
+		childs.forEach( child => {
 			this.element.removeChild(child.element);
-			this.options.splice(index, 1);
+			this.options.splice(idx, 1);
 
 			if (child.index == this.index)
-				this.index = main.index;
+				this.index = idx;
 		});
 
 		this._rebuildOptions();
@@ -249,13 +286,12 @@ export class List
 
 	clearOptions()
 	{
-		var first = this.unselected ? this.options[0] : null;
-
 		this.element.innerHTML = "";
-		this.options = first ? [first] : [];
-		this.groups = [];
+		this.options = [];
+		this.groups = {};
 		this.index = -1;
-		this.choose(-1);
+		this.active = null;
+		this.select(-1);
 
 		if (this.unselected)
 			this.element.appendChild(this.unselected);
@@ -269,8 +305,8 @@ export class List
 			option.element._decorIndex = index;
 		})
 
-		if (!this.length) this.choose(-1);
-		else if (this.index >= this.length) this.choose(this.length - 1);
-		else this.choose(this.index);
+		if (!this.length) this.select(-1);
+		else if (this.index >= this.length) this.select(this.length - 1);
+		else this.select(this.index);
 	}
 }
