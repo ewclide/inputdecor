@@ -5,7 +5,7 @@ export class List
 	constructor(source, settings)
 	{
 		this.element;
-		this.index = settings.sindex;
+		this.index = -1;
 		this.length = 0;
 		this.options = [];
 		this.groups = {};
@@ -20,8 +20,6 @@ export class List
 
 		if (settings.unselected)
 			this.unselected = this._createUnselected(settings.unselected);
-
-		this.select(this.index);
 
 		this.element.onclick = (e) => {
 			var idx = e.target._decorIndex;
@@ -118,7 +116,6 @@ export class List
 			this._createGroup(data.group, option);
 		else if (data.child && data.child in this.groups)
 			this._createChild(data.child, option);
-		else option.index = this.length++;
 
 		if (data.html)
 			element.innerHTML = data.html;
@@ -131,10 +128,9 @@ export class List
 			this.index = option.index;
 		}
 
+		option.index = this.length++;
 		this.options.push(option);
 		element._decorIndex = option.index;
-
-		console.log(this)
 
 		return option;
 	}
@@ -142,27 +138,23 @@ export class List
 	_createGroup(name, option)
 	{
 		var group = [];
-			group.parent = option;
-			group.last = option.element;
+			group._parent = option;
 			
 		this.groups[name] = group;
-
 		option.group = name;
-		option.index = this.length++;
 	}
 
 	_createChild(name, option)
 	{
-		var group = this.groups[name];
+		var group = this.groups[name],
+			lastElement = group.length ? group[group.length - 1].element : group._parent.element;
 				
-		option.append = group.last;
-		option.parent = group.parent;
+		option.append = lastElement;
+		option.parent = group._parent;
 		option.nodeIndex = group.length;
-
-		group.last = option.element;
-		group.push(option);
-
 		option.element.classList.add("child");
+
+		group.push(option);
 	}
 
 	addOption(data)
@@ -207,22 +199,18 @@ export class List
 
 		if (idx == -1 && this.unselected)
 		{
-			this.index = -1;
-			this.active = this.unselected;
-			this.unselected.classList.add("active");
-
 			data = {
 				index  : -1,
 				length : this.options.length
 			}
+
+			this.index = -1;
+			this.active = this.unselected;
+			this.unselected.classList.add("active");
 		}
 		else if (idx < this.options.length || idx >= 0)
 		{
 			var option = this.options[idx];
-
-			this.index = option.index;
-			this.active = option.element;
-			option.element.classList.add("active");
 
 			data = {
 				value  : option.value,
@@ -230,6 +218,16 @@ export class List
 				index  : option.index,
 				length : this.options.length
 			}
+
+			if (option.parent)
+			{
+				data.parentIndex = option.parent.index;
+				data.nodeIndex = option.nodeIndex;
+			}
+
+			this.index = option.index;
+			this.active = option.element;
+			option.element.classList.add("active");
 		}
 
 		if (typeof this.onChange == "function")

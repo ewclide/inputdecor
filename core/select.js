@@ -2,13 +2,15 @@ import { createElement, fetchSettings, getCallBack } from './func';
 import { List } from './list';
 import { Search } from './search';
 import { publish } from './publish';
+import { animation } from './anim';
 
 var def = {
 	speed        : 250,
 	maxHeight    : 250,
 	rollup       : false,
 	className    : "",
-	sindex       : -1,
+	sIndex       : -1,
+	sValue       : null,
 	unselected   : "-- not selected --",
 	textEmpty    : "Nothing to choose",
 	placeholder  : "Select value",
@@ -83,24 +85,28 @@ class LocSelect
 	        buttonCont : createElement("div", "button-wrapper"),
 	        button     : createElement("button", "button", null, settings.placeholder),
 	        label      : createElement("button", "label"),
-	        hidden     : createElement("input", {
-	        	type  : "hidden",
-	        	name  : this.name,
-	        	value : this.value
+	        expandCont : createElement("div", "expand-wrapper", {
+	        	transform       : "scaleY(1)",
+	        	transformOrigin : "100% 0"
 	        }),
 	        listCont   : createElement( "div", "list-wrapper", {
 	        	position        : "absolute",
 	        	minWidth        : "100%",
-	        	transition      : settings.speed + "ms",
+	        	overflow        : "hidden",
+	        	// transition      : settings.speed + "ms",
 	        	transform       : "scaleY(0)",
 	        	transformOrigin : "100% 0"
+	        }),
+	        hidden     : createElement("input", {
+	        	type  : "hidden",
+	        	name  : this.name,
+	        	value : this.value
 	        })
         }
 
         this.list = new List(this.source, {
         	type        : this.type,
         	unselected  : settings.unselected,
-        	sindex      : this.source.selectedIndex || settings.sindex,
         	maxHeight   : settings.maxHeight,
         	dispEvent   : (e) => this._dispatchEvent(e),
         	onChange    : (e) => {
@@ -111,6 +117,10 @@ class LocSelect
 
         if (settings.search)
         	this.search = new Search(this.list, settings.search);
+
+        settings.sValue
+        ? this.selectByValue(settings.sValue, false)
+        : this.select(this.source.selectedIndex || settings.sIndex, false);
 
         this.onChange = getCallBack(settings.onChange);
 		this.onReady  = getCallBack(settings.onReady);
@@ -131,7 +141,9 @@ class LocSelect
 
 		this.source.after(elements.main);
 		this.source.parentNode.removeChild(this.source);
-		elements.listCont.appendChild(this.list.element);
+		// elements.listCont.appendChild(this.list.element);
+		elements.expandCont.appendChild(this.list.element);
+		elements.listCont.appendChild(elements.expandCont);
 		elements.buttonCont.append(elements.button, elements.label);
 		elements.main.append(elements.buttonCont, elements.listCont);
 		elements.main.appendChild(elements.hidden);
@@ -146,16 +158,16 @@ class LocSelect
 			}
 			else
 			{
-				elements.listCont.prepend(this.search.elements.main);
+				elements.expandCont.prepend(this.search.elements.main);
 			}
 
-			elements.listCont.appendChild(this.search.elements.empty);
+			elements.expandCont.appendChild(this.search.elements.empty);
 		}
 
 		if (settings.rollup)
 		{
 			elements.rollup = createElement("button", "rollup");
-			elements.listCont.appendChild(elements.rollup);
+			elements.expandCont.appendChild(elements.rollup);
 			elements.rollup.onclick = (e) => this.close();
 		}
 	}
@@ -296,7 +308,9 @@ class LocSelect
 	{
 		if (this.list.length > 1)
 		{
-			this.elements.listCont.style.transform = "scaleY(1)";
+			// this.elements.listCont.style.transform = "scaleY(1)";
+			this.elements.listCont.classList.add(animation.expandClass);
+			this.elements.expandCont.classList.add(animation.expandContentClass);
 			this.elements.button.classList.add("active");
 			this.elements.label.classList.add("active");
 			this.active = true;
@@ -307,7 +321,9 @@ class LocSelect
 
 	close()
 	{
-		this.elements.listCont.style.transform = "scaleY(0)";
+		// this.elements.listCont.style.transform = "scaleY(0)";
+		this.elements.listCont.classList.remove(animation.expandClass);
+		this.elements.expandCont.classList.remove(animation.expandContentClass);
 		this.elements.button.classList.remove("active");
 		this.elements.label.classList.remove("active");
 		this.active = false;
