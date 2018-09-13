@@ -1,4 +1,5 @@
-import { decorate, decorateNew } from './decorate';
+import './polyfill';
+import { decorate } from './decorate';
 
 var instances = {}
 
@@ -73,6 +74,25 @@ InputDecor.getById = function(id)
 		return instances[id];
 }
 
+InputDecor.create = function(type, settings)
+{
+	// code ...
+}
+
+InputDecor.destroy = function(instance)
+{
+	// code ...
+}
+
 var first = new InputDecor("[data-inputdecor]");
 
 window.InputDecor = InputDecor;
+
+document.body.addEventListener("click", function(e){
+	var parent = e.target.closest(".inputdecor-select");
+	if (!parent)
+		for (var i in instances){
+			let item = instances[i];
+			'close' in item ? item.close() : false
+		}
+});

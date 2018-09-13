@@ -67,14 +67,12 @@ class LocInputFile
 		}
 
 		// appending
-		this.source.after(elements.wrapper);
+		this.source.insertAdjacentElement('afterend', elements.wrapper);
 		elements.list.appendChild(elements.unselected);
-		elements.wrapper.append(
-			elements.button,
-			elements.list,
-			elements.clear,
-			this.source
-		);
+		elements.wrapper.appendChild(elements.button);
+		elements.wrapper.appendChild(elements.list);
+		elements.wrapper.appendChild(elements.clear);
+		elements.wrapper.appendChild(this.source);
 
 		// setuping
 		if (settings.className)
@@ -140,12 +138,12 @@ class LocInputFile
 
 		if (this.fileList)
 		{
-			this.elements.list.innerHTML = '';
+			this._clearElement(this.elements.list)
 			this.elements.list.appendChild(list);
 		}
 		else 
 		{
-			this.elements.button.innerHTML = '';
+			this._clearElement(this.elements.list)
 			this.elements.button.appendChild(list);
 			this.elements.button.classList.add("choosen");
 		}
@@ -181,11 +179,17 @@ class LocInputFile
 
 		else 
 		{
-			this.elements.list.innerHTML = "";
+			this._clearElement(this.elements.list)
 			this.elements.list.appendChild(this.elements.unselected);
 		}
 
 		this.elements.clear.style.display = "none";
+	}
+
+	_clearElement(element) // IE support
+	{
+		while(element.firstChild)
+			element.removeChild(element.firstChild);
 	}
 }
 

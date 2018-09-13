@@ -15,7 +15,7 @@ export class Box
 		if (this.active)
 			this.button.classList.add("active");
 
-		this.source.after(this.box);
+		this.source.insertAdjacentElement('afterend', this.box);
 		this.box.appendChild(this.button);
 		this.button.appendChild(this.label);
 		this.box.appendChild(this.source);
@@ -35,17 +35,23 @@ export class Box
 
 	switchOn()
 	{
+		var event = document.createEvent("Event"); // EI support
+		 	event.initEvent("click", true, true);
+
+		this.source.dispatchEvent(event);
 		this.button.classList.add("active");
 		this.source.checked = true;
-		this.source.dispatchEvent(new Event("change"));
 		this.active = true;
 	}
 
 	switchOff()
 	{
+		var event = document.createEvent("Event"); // EI support
+		 	event.initEvent("click", true, true);
+		 	
+		this.source.dispatchEvent(event);
 		this.button.classList.remove("active");
 		this.source.checked = false;
-		this.source.dispatchEvent(new Event("change"));
 		this.active = false;
 	}
 

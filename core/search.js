@@ -9,7 +9,7 @@ export class Search
 		this.wholeWord = settings.wholeWord;
 		this.beginWord = settings.beginWord;
 
-		this.options = list.options;
+		this.list = list;
 
 		this._create(settings);
 	}
@@ -52,30 +52,30 @@ export class Search
 
 	clear(focus)
 	{
+		this.elements.input.value = "";
 		this.elements.empty.style.display = "none";
 		this.elements.clear.style.display = "none";
 
-		if (focus)
-		{
-			this.elements.input.focus();
-			this.elements.input.value = "";
-		}
-		else
-		{
-			this.elements.input.value = "";
-			this.elements.input.blur();
-		}
+		if (this.list.unselected)
+			this.list.unselected.style.display = "";
 
-		this.options.forEach( option => {
+		focus
+		? this.elements.input.focus()
+		: this.elements.input.blur();
+
+		this.list.options.forEach( option => {
 			option.element.style.display = "";
 		})
 	}
 
 	find(text)
 	{
-		var found = this._find(this.options, text);
+		var found = this._find(this.list.options, text);
 
 		this.elements.empty.style.display = found ? "none" : "";
+
+		if (this.list.unselected)
+			this.list.unselected.style.display = "none";
 
 		this.setValue(text, false);
 
@@ -130,10 +130,7 @@ export class Search
 
 	changeInputType(type)
 	{
-		if (type == 1)
-			this.elements.input.type = "text";
-		
-		else if (type == 2)
-			this.elements.input.type = "button";
+		if (type == 1) this.elements.input.type = "text";
+		else if (type == 2) this.elements.input.type = "button";
 	}
 }

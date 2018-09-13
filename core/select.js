@@ -5,7 +5,6 @@ import { publish } from './publish';
 import { animation } from './anim';
 
 var def = {
-	speed        : 250,
 	maxHeight    : 250,
 	rollup       : false,
 	className    : "",
@@ -52,7 +51,6 @@ class LocSelect
 
 		settings = fetchSettings(settings, def, attrs, source);
 
-		// this.speed  = settings.speed;
 		this.source = source;
 		this.type = type;
 		this.active = false;
@@ -85,15 +83,11 @@ class LocSelect
 	        buttonCont : createElement("div", "button-wrapper"),
 	        button     : createElement("button", "button", null, settings.placeholder),
 	        label      : createElement("button", "label"),
-	        expandCont : createElement("div", "expand-wrapper", {
-	        	transform       : "scaleY(1)",
-	        	transformOrigin : "100% 0"
-	        }),
+	        expandCont : createElement("div", "expand-wrapper"),
 	        listCont   : createElement( "div", "list-wrapper", {
 	        	position        : "absolute",
 	        	minWidth        : "100%",
 	        	overflow        : "hidden",
-	        	// transition      : settings.speed + "ms",
 	        	transform       : "scaleY(0)",
 	        	transformOrigin : "100% 0"
 	        }),
@@ -107,6 +101,8 @@ class LocSelect
         this.list = new List(this.source, {
         	type        : this.type,
         	unselected  : settings.unselected,
+        	sIndex      : settings.sIndex,
+        	sValue      : settings.sValue,
         	maxHeight   : settings.maxHeight,
         	dispEvent   : (e) => this._dispatchEvent(e),
         	onChange    : (e) => {
@@ -117,10 +113,6 @@ class LocSelect
 
         if (settings.search)
         	this.search = new Search(this.list, settings.search);
-
-        settings.sValue
-        ? this.selectByValue(settings.sValue, false)
-        : this.select(this.source.selectedIndex || settings.sIndex, false);
 
         this.onChange = getCallBack(settings.onChange);
 		this.onReady  = getCallBack(settings.onReady);
@@ -139,13 +131,15 @@ class LocSelect
 	{
 		var elements = this.elements;
 
-		this.source.after(elements.main);
+		this.source.insertAdjacentElement('afterend', elements.main);
 		this.source.parentNode.removeChild(this.source);
-		// elements.listCont.appendChild(this.list.element);
+
 		elements.expandCont.appendChild(this.list.element);
 		elements.listCont.appendChild(elements.expandCont);
-		elements.buttonCont.append(elements.button, elements.label);
-		elements.main.append(elements.buttonCont, elements.listCont);
+		elements.buttonCont.appendChild(elements.button);
+		elements.buttonCont.appendChild(elements.label);
+		elements.main.appendChild(elements.buttonCont);
+		elements.main.appendChild(elements.listCont);
 		elements.main.appendChild(elements.hidden);
 
 		if (this.search)
@@ -153,12 +147,12 @@ class LocSelect
 			if (settings.search.inButton)
 			{
 				this.search.setValue(this.text);
-				elements.buttonCont.prepend(this.search.elements.main);
+				elements.buttonCont.insertAdjacentElement('afterbegin', this.search.elements.main);
 				elements.buttonCont.removeChild(elements.button);
 			}
 			else
 			{
-				elements.expandCont.prepend(this.search.elements.main);
+				elements.expandCont.insertAdjacentElement('afterbegin', this.search.elements.main);
 			}
 
 			elements.expandCont.appendChild(this.search.elements.empty);
@@ -189,11 +183,6 @@ class LocSelect
 
 		if (settings.onReady)
 			settings.onReady(this);
-
-		document.body.addEventListener("click", function(e){
-			var parent = e.target.closest(".inputdecor-select");
-			if (!parent) self.close();
-		});
 	}
 
 	_checkSingleAndEmpty()
@@ -234,7 +223,7 @@ class LocSelect
 		if (this.search)
 			this.search.setValue(text);
 
-		this.elements.hidden.value = value;
+		this.elements.hidden.value = value !== undefined ? value : null;
 		this.elements.button.innerText = text;
 	}
 
@@ -246,6 +235,11 @@ class LocSelect
 	get length()
 	{
 		return this.list.length;
+	}
+
+	get wholeLength()
+	{
+		return this.list.wholeLength;
 	}
 
 	get index()
@@ -306,24 +300,22 @@ class LocSelect
 
 	open()
 	{
-		if (this.list.length > 1)
-		{
-			// this.elements.listCont.style.transform = "scaleY(1)";
-			this.elements.listCont.classList.add(animation.expandClass);
-			this.elements.expandCont.classList.add(animation.expandContentClass);
-			this.elements.button.classList.add("active");
-			this.elements.label.classList.add("active");
-			this.active = true;
+		if (this.list.length <= 1) return;
 
-			if (this.search) this.search.clear(true);
-		}
+		this.elements.listCont.classList.add(animation.expandClass);
+		this.elements.expandCont.classList.add(animation.shrinkClass);
+
+		this.elements.button.classList.add("active");
+		this.elements.label.classList.add("active");
+		this.active = true;
+
+		if (this.search) this.search.clear(true);
 	}
 
 	close()
 	{
-		// this.elements.listCont.style.transform = "scaleY(0)";
 		this.elements.listCont.classList.remove(animation.expandClass);
-		this.elements.expandCont.classList.remove(animation.expandContentClass);
+		this.elements.expandCont.classList.remove(animation.shrinkClass);
 		this.elements.button.classList.remove("active");
 		this.elements.label.classList.remove("active");
 		this.active = false;
@@ -344,6 +336,6 @@ class LocSelect
 
 export var Select = publish(
 	LocSelect,
-	["length", "index", "value", "isInputDecor"],
+	["length", "wholeLength", "index", "value", "isInputDecor"],
 	["find", "select", "selectByValue",  "addOption", "removeOption", "clearGroup", "clearOptions", "open", "close", "toggle"]
 );

@@ -5,8 +5,8 @@ export class List
 	constructor(source, settings)
 	{
 		this.element;
-		this.index = -1;
-		this.length = 0;
+		this.index = settings.sIndex || -1;
+		// this.length = 0;
 		this.options = [];
 		this.groups = {};
 		this.onChange = settings.onChange;
@@ -21,6 +21,11 @@ export class List
 		if (settings.unselected)
 			this.unselected = this._createUnselected(settings.unselected);
 
+		console.log(this)
+
+		if (settings.sValue) this.selectByValue(settings.sValue);
+		else this.select(this.index);
+
 		this.element.onclick = (e) => {
 			var idx = e.target._decorIndex;
 			if (!idx) idx = e.target.closest("li")._decorIndex;
@@ -28,9 +33,19 @@ export class List
 		}
 	}
 
-	get wholeLength()
+	get length()
 	{
 		return this.options.length;
+	}
+
+	get wholeLength()
+	{
+		var length = this.options.length;
+
+		for (var i in groups)
+			length += groups[i].length;
+
+		return length;
 	}
 
 	_createUnselected(text)
@@ -38,7 +53,7 @@ export class List
 		var element = createElement("li", "unselected", null, text);
 			element._decorIndex = -1;
 
-		this.element.prepend(element);
+		this.element.insertAdjacentElement('afterbegin', element);
 
 		return element;
 	}
@@ -107,51 +122,67 @@ export class List
 	{
 		var element = data.element || createElement("li", data.className),
 			option = {
-				element : element,
 				value   : data.value,
-				text    : data.text
+				text    : data.text,
+				element : element
 			}
 
 		if (data.group)
 			this._createGroup(data.group, option);
+
 		else if (data.child && data.child in this.groups)
 			this._createChild(data.child, option);
+
+		else this._createSimple(option);
+		// else option.index = this.length++;
 
 		if (data.html)
 			element.innerHTML = data.html;
 		else if (data.text)
 			element.innerText = data.text;
 
-		if (data.selected)
+		if (data.selected && option.index)
 		{
-			element.classList.add("active");
+			// element.classList.add("active");
 			this.index = option.index;
 		}
 
-		option.index = this.length++;
-		this.options.push(option);
-		element._decorIndex = option.index;
+		// option.index = this.length++;
+		// this.options.push(option);
+		// element._decorIndex = option.index;
 
 		return option;
+	}
+
+	_createSimple(option)
+	{
+		option.index = this.options.length;
+		option.element._decorIndex = option.index;
+
+		this.options.push(option);
 	}
 
 	_createGroup(name, option)
 	{
 		var group = [];
-			group._parent = option;
+			group._parentOption = option;
 			
 		this.groups[name] = group;
 		option.group = name;
+		this.options.push(option);
+		// option.index = this.length++;
 	}
 
 	_createChild(name, option)
 	{
 		var group = this.groups[name],
-			lastElement = group.length ? group[group.length - 1].element : group._parent.element;
+			lastElement = group.length ? group[group.length - 1].element : group._parentOption.element;
 				
 		option.append = lastElement;
-		option.parent = group._parent;
+		option.parent = group._parentOption;
 		option.nodeIndex = group.length;
+		option.element._decorIndex = option.nodeIndex;
+		option.element._decorGroup = name;
 		option.element.classList.add("child");
 
 		group.push(option);
@@ -169,7 +200,7 @@ export class List
 				let option = this._createOption(item);
 
 				option.append
-				? option.append.after(option.element)
+				? option.append.insertAdjacentElement('afterend', option.element)
 				: frag.appendChild(option.element);
 			});
 
@@ -180,7 +211,7 @@ export class List
 			let option = this._createOption(data);
 
 			option.append
-			? option.append.after(option.element)
+			? option.append.insertAdjacentElement('afterend',option.element)
 			: this.element.appendChild(option.element);
 		}
 
@@ -188,7 +219,7 @@ export class List
 		else if (before == 0) this.select(this.index);
 	}
 
-	select(idx)
+	select(idx, nodeIdx)
 	{
 		var data;
 
