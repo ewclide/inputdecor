@@ -9,12 +9,12 @@ class LocCheckbox extends Box
 		this.source = source;
 		this.name = settings.name || this.source.name;
 		this.active = this.source.checked
-		this.create("checkbox");
+		this.create('checkbox');
 	}
 }
 
 export var Checkbox = publish(
     LocCheckbox,
-    ["name", "checked", "value"],
-    ["switchOn", "switchOff", "toggle"]
+    ['name', 'checked', 'value', 'isInputDecor'],
+    ['switchOn', 'switchOff', 'toggle']
 );

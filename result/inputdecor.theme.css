@@ -285,7 +285,7 @@
     border-left: 1px solid #cccccc;
     padding-left: 10px;
 }
-.inputdecor-file .files-list .file {
+.inputdecor-file .file {
     border: 1px solid hsla(0, 0%, 80%, 1);
     background: linear-gradient(to top, #f5f5f5, #f0f0f0);
     box-shadow: inset 0px 1px 0px 0 white, 0px 2px 4px rgba(0,0,0,0.08);
@@ -293,17 +293,18 @@
     display: flex;
     align-items: stretch;
     border-radius: 2px;
+    text-decoration: none;
 }
-.inputdecor-file .files-list .file:first-child {
+.inputdecor-file .file:first-child {
     margin-left: 0;
 }
-.inputdecor-file .files-list .file .name {
+.inputdecor-file .file .name {
     color: #555555;
     padding: 7px 12px;
     display: inline-block;
     font-size: 12px;
 }
-.inputdecor-file .files-list .file .size {
+.inputdecor-file .file .size {
     color: #979797;
     background: hsla(0, 0%, 98%, 1);
     padding: 0px 10px;
@@ -313,7 +314,6 @@
     border-left: 1px dotted #cccccc;
     margin: 0;
 }
-
 .inputdecor-file .unselected {
     color: hsla(0, 0%, 60%, 1);
     border: 1px dotted hsl(0, 0%, 70%);

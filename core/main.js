@@ -38,24 +38,24 @@ class InputDecor
 		}
 	}
 
-	get isInputDecor()
+	get isInputDecorList()
 	{
 		return true;
 	}
 
-	evoke(method, args)
+	invoke(method, args)
 	{
-		var result = [];
+		var result = {};
 
 		this.ids.forEach( id => {
 
-			let value, obj = instances[id];
+			let value, inst = instances[id];
 
-			if (obj && typeof obj[method] == "function")
-				value = obj[method].apply(obj, args);
+			if (inst && typeof inst[method] == "function")
+				value = inst[method].apply(inst, args);
 
 			if (value !== undefined)
-				result.push(value);
+				result[id] = value;
 		});
 
 		return result.length == 1 ? result[0] : result;
@@ -72,16 +72,6 @@ InputDecor.getById = function(id)
 {
 	if (id in instances)
 		return instances[id];
-}
-
-InputDecor.create = function(type, settings)
-{
-	// code ...
-}
-
-InputDecor.destroy = function(instance)
-{
-	// code ...
 }
 
 var first = new InputDecor("[data-inputdecor]");

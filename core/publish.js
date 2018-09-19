@@ -38,7 +38,7 @@ export function publish(TheClass, fields, methods)
     	let method = methods[i];
     	Output.prototype[method] = function(){
     		var obj = list[this.id];
-    		obj[method].apply(obj, arguments);
+            return obj[method].apply(obj, arguments);
     	}
     }
 

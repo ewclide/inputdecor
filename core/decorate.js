@@ -3,7 +3,7 @@ import { Radio } from './radio';
 import { Select } from './select';
 import { InputFile } from './file';
 
-export function decorate(element, settings)
+export function decorate(element, settings = {})
 {
     var type = element.getAttribute("type") || element.tagName.toLowerCase();
 

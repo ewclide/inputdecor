@@ -7,12 +7,13 @@ import { animation } from './anim';
 var def = {
 	maxHeight    : 250,
 	rollup       : false,
-	className    : "",
-	sIndex       : -1,
-	sValue       : null,
-	unselected   : "-- not selected --",
-	textEmpty    : "Nothing to choose",
-	placeholder  : "Select value",
+	className    : '',
+	index        : -1,
+	nodeIndex    : undefined,
+	value        : null,
+	unselected   : '-- not selected --',
+	textEmpty    : 'Nothing to choose',
+	placeholder  : 'Select value',
 	zIndex       : 1,
 	search       : false,
 	onChange     : null,
@@ -20,15 +21,16 @@ var def = {
 }
 
 var attrs = {
-	maxHeight : "max-height",
-	textEmpty : "text-empty",
-	className : "class",
-	onChange  : "on-change",
-	onReady   : "on-ready"
+	nodeIndex : 'node-index',
+	maxHeight : 'max-height',
+	textEmpty : 'text-empty',
+	className : 'class',
+	onChange  : 'on-change',
+	onReady   : 'on-ready'
 }
 
 var searchDef = {
-	textEmpty : "-- not found --",
+	textEmpty : '-- not found --',
 	inButton  : false,
 	caseSense : false,
 	wholeWord : false,
@@ -36,18 +38,18 @@ var searchDef = {
 }
 
 var searchAttrs = {
-	textEmpty : "search-empty",
-	inButton  : "search-inbutton",
-	caseSense : "search-case",
-	wholeWord : "search-whole",
-	beginWord : "search-begin"
+	textEmpty : 'search-empty',
+	inButton  : 'search-inbutton',
+	caseSense : 'search-case',
+	wholeWord : 'search-whole',
+	beginWord : 'search-begin'
 }
 
 class LocSelect
 {
 	constructor(source, type, settings)
 	{
-		source.style.display = "none";
+		source.style.display = 'none';
 
 		settings = fetchSettings(settings, def, attrs, source);
 
@@ -79,20 +81,20 @@ class LocSelect
 	_create(settings)
 	{
         this.elements = {
-        	main       : createElement("div", ["inputdecor-select", settings.className]),
-	        buttonCont : createElement("div", "button-wrapper"),
-	        button     : createElement("button", "button", null, settings.placeholder),
-	        label      : createElement("button", "label"),
-	        expandCont : createElement("div", "expand-wrapper"),
-	        listCont   : createElement( "div", "list-wrapper", {
-	        	position        : "absolute",
-	        	minWidth        : "100%",
-	        	overflow        : "hidden",
-	        	transform       : "scaleY(0)",
-	        	transformOrigin : "100% 0"
+        	main       : createElement('div', ['inputdecor-select', settings.className]),
+	        buttonCont : createElement('div', 'button-wrapper'),
+	        button     : createElement('button', 'button', null, settings.placeholder),
+	        label      : createElement('button', 'label'),
+	        expandCont : createElement('div', 'expand-wrapper'),
+	        listCont   : createElement( 'div', 'list-wrapper', {
+	        	position        : 'absolute',
+	        	minWidth        : '100%',
+	        	overflow        : 'hidden',
+	        	transform       : 'scaleY(0)',
+	        	transformOrigin : '100% 0'
 	        }),
-	        hidden     : createElement("input", {
-	        	type  : "hidden",
+	        hidden     : createElement('input', {
+	        	type  : 'hidden',
 	        	name  : this.name,
 	        	value : this.value
 	        })
@@ -101,8 +103,9 @@ class LocSelect
         this.list = new List(this.source, {
         	type        : this.type,
         	unselected  : settings.unselected,
-        	sIndex      : settings.sIndex,
-        	sValue      : settings.sValue,
+        	index       : settings.index,
+        	nodeIndex   : settings.nodeIndex,
+        	value       : settings.value,
         	maxHeight   : settings.maxHeight,
         	dispEvent   : (e) => this._dispatchEvent(e),
         	onChange    : (e) => {
@@ -124,15 +127,18 @@ class LocSelect
 
 	_dispatchEvent(e)
 	{
-		if (typeof this.onChange == "function") this.onChange(e);
+		if (typeof this.onChange == 'function') this.onChange(e);
 	}
 
 	_buildElements(settings)
 	{
 		var elements = this.elements;
 
-		this.source.insertAdjacentElement('afterend', elements.main);
-		this.source.parentNode.removeChild(this.source);
+		if (this.source.parentNode)
+		{
+			this.source.insertAdjacentElement('afterend', elements.main);
+			this.source.parentNode.removeChild(this.source);
+		}
 
 		elements.expandCont.appendChild(this.list.element);
 		elements.listCont.appendChild(elements.expandCont);
@@ -160,7 +166,7 @@ class LocSelect
 
 		if (settings.rollup)
 		{
-			elements.rollup = createElement("button", "rollup");
+			elements.rollup = createElement('button', 'rollup');
 			elements.expandCont.appendChild(elements.rollup);
 			elements.rollup.onclick = (e) => this.close();
 		}
@@ -182,26 +188,26 @@ class LocSelect
 			this.search.elements.input.onclick = toggle;
 
 		if (settings.onReady)
-			settings.onReady(this);
+			settings.onReady();
 	}
 
 	_checkSingleAndEmpty()
 	{
-		if (!this.list.length)
+		if (!this.list.wholeLength)
 		{
-			this.elements.main.classList.add("empty");
+			this.elements.main.classList.add('empty');
 			if (this.search) this.search.changeInputType(2);
 		}
-		else if (this.list.length == 1)
+		else if (this.list.wholeLength == 1)
 		{
-			this.elements.main.classList.add("single");
-			this.elements.main.classList.remove("empty");
+			this.elements.main.classList.add('single');
+			this.elements.main.classList.remove('empty');
 			if (this.search) this.search.changeInputType(2);
 		}
 		else
 		{
-			this.elements.main.classList.remove("empty");
-			this.elements.main.classList.remove("single");
+			this.elements.main.classList.remove('empty');
+			this.elements.main.classList.remove('single');
 			if (this.search) this.search.changeInputType(1);
 		}
 	}
@@ -247,19 +253,19 @@ class LocSelect
 		return this.list.index;
 	}
 
+	get nodeIndex()
+	{
+		return this.list.nodeIndex;
+	}
+
 	find(value)
 	{
-		this.search.find(value);
+		return this.search.find(value);
 	}
 
-	create()
+	select(index, nodeIndex)
 	{
-		// create empty object...
-	}
-
-	select(index)
-	{
-		var e = this.list.select(index);
+		var e = this.list.select(index, nodeIndex);
 		this._dispatchEvent(e);
 		this._update(e);
 		this.close();
@@ -300,13 +306,12 @@ class LocSelect
 
 	open()
 	{
-		if (this.list.length <= 1) return;
+		if (this.list.wholeLength <= 1) return;
 
 		this.elements.listCont.classList.add(animation.expandClass);
 		this.elements.expandCont.classList.add(animation.shrinkClass);
-
-		this.elements.button.classList.add("active");
-		this.elements.label.classList.add("active");
+		this.elements.button.classList.add('active');
+		this.elements.label.classList.add('active');
 		this.active = true;
 
 		if (this.search) this.search.clear(true);
@@ -316,8 +321,8 @@ class LocSelect
 	{
 		this.elements.listCont.classList.remove(animation.expandClass);
 		this.elements.expandCont.classList.remove(animation.shrinkClass);
-		this.elements.button.classList.remove("active");
-		this.elements.label.classList.remove("active");
+		this.elements.button.classList.remove('active');
+		this.elements.label.classList.remove('active');
 		this.active = false;
 
 		if (this.search)
@@ -336,6 +341,6 @@ class LocSelect
 
 export var Select = publish(
 	LocSelect,
-	["length", "wholeLength", "index", "value", "isInputDecor"],
-	["find", "select", "selectByValue",  "addOption", "removeOption", "clearGroup", "clearOptions", "open", "close", "toggle"]
+	['length', 'wholeLength', 'index', 'nodeIndex', 'value', 'isInputDecor'],
+	['find', 'select', 'selectByValue',  'addOption', 'removeOption', 'clearGroup', 'clearOptions', 'open', 'close', 'toggle']
 );

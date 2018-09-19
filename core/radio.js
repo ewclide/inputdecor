@@ -9,10 +9,10 @@ class LocRadio extends Box
 
 		this.id = Math.random();
 		this.source = source;
-		this.remove = settings.remove || source.getAttribute("data-remove") !== null;
+		this.remove = settings.remove || source.getAttribute('data-remove') !== null;
 
 		this.init();
-		this.create("radio");
+		this.create('radio');
 
 		this.button.onclick = () => {
 			if (!this.remove && !this.active) this.switchOn();
@@ -24,7 +24,7 @@ class LocRadio extends Box
 	{
 		this.name = this.source.name;
 		this.active = this.source.checked;
-		this._list = document.querySelectorAll("input[type=radio][name='" + this.name + "']");
+		this._list = document.querySelectorAll(`input[type=radio][name='${this.name}']`);
 		this.source._inputDecor = this;
 	}
 
@@ -39,6 +39,6 @@ class LocRadio extends Box
 
 export var Radio = publish(
     LocRadio,
-    ["name", "checked", "value"],
-    ["switchOn", "switchOff", "toggle"]
+    ['name', 'checked', 'value', 'isInputDecor'],
+    ['switchOn', 'switchOff', 'toggle']
 );
