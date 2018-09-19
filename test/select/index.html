@@ -11,7 +11,7 @@
 </head>
 <body>
 
-	<ul data-inputdecor name="list" data-search data-sindex="4" data-on-change="console.log(e)">
+	<ul data-inputdecor name="list" data-search data-on-change="console.log(e)">
 		<li value="value 1"><a href="#">value 1</a></li>
 		<li value="value 2" data-group="v2">value 2</li>
 			<li value="value 2.1" data-child="v2"><a href="#">value 2.1</a></li>
@@ -30,12 +30,11 @@
 		data-unselected="false"
 		data-search
 		data-search-inbutton
-		data-sindex="2"
 		data-placeholder="Select the value"
 		data-on-change="console.log(e)"
 	>
 		<option value="value 1">value 1</option>
-		<option value="value 2" selected>value 2</option>
+		<option value="value 2">value 2</option>
 		<option value="value 3">value 3</option>
 		<option value="value 4">value 4</option>
 		<option value="value 5">value 5</option>

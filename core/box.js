@@ -23,6 +23,11 @@ export class Box
 		this.button.onclick = () => this.toggle();
 	}
 
+	get isInputDecor()
+	{
+		return true;
+	}
+
 	get value()
 	{
 		return this.source.value;
@@ -36,11 +41,11 @@ export class Box
 	switchOn()
 	{
 		var event = document.createEvent("Event"); // EI support
-		 	event.initEvent("click", true, true);
+			event.initEvent("click", true, true);
 
 		this.source.dispatchEvent(event);
-		this.button.classList.add("active");
 		this.source.checked = true;
+		this.button.classList.add("active");
 		this.active = true;
 	}
 

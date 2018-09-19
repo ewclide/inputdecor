@@ -38,7 +38,7 @@ class InputDecor
 		}
 	}
 
-	get isInputDecor()
+	get isInputDecorList()
 	{
 		return true;
 	}
@@ -72,16 +72,6 @@ InputDecor.getById = function(id)
 {
 	if (id in instances)
 		return instances[id];
-}
-
-InputDecor.create = function(type, settings)
-{
-	// code ...
-}
-
-InputDecor.destroy = function(instance)
-{
-	// code ...
 }
 
 var first = new InputDecor("[data-inputdecor]");

@@ -14,7 +14,7 @@ var test = new InputDecor(document.getElementById("test"), {
 console.log(test)
 console.log("----------------------")
 
-test.clearOptions();
+// test.clearOptions();
 
 test.addOption({
     text  : "main option",
@@ -44,15 +44,13 @@ test.addOption({
     value : "second"
 });
 
-// test.choose(1);
-
 test.addOption({
     text  : "child option 4",
     value : 4,
     child : "main"
 });
 
+test.select("main", 3);
 // test.removeOption(1);
-// test.removeOption(0);
-// test.removeChilds(0);
 // test.clearOptions();
+console.log(test.index, test.nodeIndex);

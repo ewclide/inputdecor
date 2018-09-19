@@ -1,12 +1,12 @@
 function getBrowser()
 {
-    var ua = navigator.userAgent;  
+    var ua = navigator.userAgent; 
 
     if (ua.search(/Chrome/) > 0)  return 'Chrome';
     if (ua.search(/Firefox/) > 0) return 'Firefox';
     if (ua.search(/Opera/) > 0)   return 'Opera';
     if (ua.search(/Safari/) > 0)  return 'Safari';
-    if (ua.search(/MSIE/) > 0)    return 'IE';
+    if (ua.search(/MSIE|\.NET/) > 0) return 'IE';
 
     return false;
 }

@@ -1,4 +1,4 @@
-import { fetchSettings, createElement } from './func';
+import { fetchSettings, createElement, browser } from './func';
 import { publish } from './publish';
 
 var def = {
@@ -49,7 +49,7 @@ class LocInputFile
 		this.source.style.display = "none";
 
 		var elements = {
-			wrapper    : createElement("div", "inputdecor-file"),
+			main       : createElement("div", "inputdecor-file"),
 			unselected : createElement("span", "unselected", null, settings.unselected),
 			list       : createElement("div", "files-list"),
 			clear      : createElement("button", "clear", { display : "none" }),
@@ -67,16 +67,16 @@ class LocInputFile
 		}
 
 		// appending
-		this.source.insertAdjacentElement('afterend', elements.wrapper);
+		this.source.insertAdjacentElement('afterend', elements.main);
 		elements.list.appendChild(elements.unselected);
-		elements.wrapper.appendChild(elements.button);
-		elements.wrapper.appendChild(elements.list);
-		elements.wrapper.appendChild(elements.clear);
-		elements.wrapper.appendChild(this.source);
+		elements.main.appendChild(elements.button);
+		elements.main.appendChild(elements.list);
+		elements.main.appendChild(elements.clear);
+		elements.main.appendChild(this.source);
 
 		// setuping
 		if (settings.className)
-			elements.wrapper.classList.add(settings.className);
+			elements.main.classList.add(settings.className);
 
 		if (!settings.fileList)
 			elements.list.style.display = "none";
@@ -170,6 +170,11 @@ class LocInputFile
 		return frag;
 	}
 
+	get isInputDecor()
+	{
+		return true;
+	}
+
 	clearList()
 	{
 		this.source.value = "";
@@ -186,11 +191,15 @@ class LocInputFile
 		this.elements.clear.style.display = "none";
 	}
 
-	_clearElement(element) // IE support
+	_clearElement(element)
 	{
-		while(element.firstChild)
-			element.removeChild(element.firstChild);
+		if (browser == "IE")
+		{
+			while (element.firstChild)
+				element.removeChild(element.firstChild);
+		}
+		else element.innerHTML = '';
 	}
 }
 
-export var InputFile = publish(LocInputFile, null, ["clearList"]);
+export var InputFile = publish(LocInputFile, ["isInputDecor"], ["clearList"]);
