@@ -260,7 +260,9 @@ class LocSelect
 
 	find(value)
 	{
-		return this.search.find(value);
+		if (this.search)
+			return this.search.find(value);
+		else console.error("This instance have not search element!");
 	}
 
 	select(index, nodeIndex)
@@ -269,6 +271,8 @@ class LocSelect
 		this._dispatchEvent(e);
 		this._update(e);
 		this.close();
+
+		return e;
 	}
 
 	selectByValue(value, dispatch = true)
@@ -278,6 +282,8 @@ class LocSelect
 		this.close();
 
 		if (dispatch) this._dispatchEvent(e);
+
+		return e;
 	}
 
 	addOption(data)
